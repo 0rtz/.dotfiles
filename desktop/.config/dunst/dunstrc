@@ -1,0 +1,39 @@
+# See dunst(5) for all configuration options
+
+[global]
+    width = 500
+    origin = top-center
+    offset = 10x10
+    padding = 20
+    notification_limit = 5
+    progress_bar_max_width = 500
+    progress_bar_corner_radius = 50
+    horizontal_padding = 30
+    frame_width = 3
+    gap_size = 10
+    frame_color = "#aaaaaa"
+    idle_threshold = 60
+    font = Noto Sans 16
+    format = "<b>%a</b>\n%s\n%b"
+    enable_recursive_icon_lookup = true
+    history_length = 50
+    corner_radius = 40
+    mouse_left_click = do_action
+    mouse_middle_click = close_all
+    mouse_right_click = close_current
+[urgency_low]
+    background = "#222222d9"
+    foreground = "#ffffffd9"
+    timeout = 5
+[urgency_normal]
+    background = "#222222d9"
+    foreground = "#ffffffd9"
+    frame_color = "#ff0000"
+    timeout = 5
+[urgency_critical]
+    background = "#900000"
+    foreground = "#ffffff"
+    frame_color = "#ff0000"
+    timeout = 0
+
+# vim: ft=cfg

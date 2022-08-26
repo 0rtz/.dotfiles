@@ -1,0 +1,111 @@
+{
+	"layer": "top",
+	"modules-left": ["tray", "bluetooth", "network", "custom/vpn", "custom/info_tmux", "custom/info_ssh", "custom/scratchpad-indicator", "custom/info_acrhlinux", "custom/systemd_failed", "custom/detect_xwayland", "custom/info-snapshot"],
+	"modules-center": ["sway/workspaces"],
+	"modules-right": ["pulseaudio", "sway/language", "clock" ],
+
+	// ##################################################
+	// ### modules-left #################################
+	"tray": {
+		"icon-size": 21,
+		"spacing": 10
+	},
+	"bluetooth": {
+		"format-disabled": "",
+		"format-connected": "({num_connections})",
+		"tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
+		"tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+		"on-click": "blueman-manager"
+	},
+	"network": {
+		"format": "{ifname}",
+		"interval": 1,
+		"format-wifi": " ",
+		"format-ethernet": "󰈀",
+		"format-disconnected": "",
+		"tooltip-format-wifi": " {essid}\n\nSignal strength: {signalStrength}%\nFrequency: {frequency}\nIP: {ipaddr}/{cidr}\n {bandwidthDownBytes}       {bandwidthUpBytes}",
+		"tooltip-format-ethernet": " {ifname}\n\nIP: {ipaddr}/{cidr}\n {bandwidthDownBytes}       {bandwidthUpBytes}",
+		"tooltip-format-disconnected": "Disconnected",
+		"max-length": 50
+	},
+	"custom/vpn": {
+		"exec": "~/.config/waybar/info-vpn.sh",
+		"interval": 1
+	},
+	"custom/info_tmux": {
+		"exec": "~/.config/waybar/info-tmux-sessions.sh",
+		"on-click": "alacritty --command $SHELL --interactive -c 'tmux attach-session'",
+		"interval": 1
+	},
+	"custom/info_ssh": {
+		"exec": "~/.config/waybar/info-ssh-sessions.sh",
+		"interval": 1
+	},
+	"custom/scratchpad-indicator": {
+		"interval": 1,
+		"exec": "swaymsg -t get_tree | jq 'recurse(.nodes[]) | first(select(.name==\"__i3_scratch\")) | .floating_nodes | length | select(. >= 1)'",
+		"format": " ({})",
+		"on-click": "swaymsg 'scratchpad show'",
+		"on-click-right": "swaymsg 'move scratchpad'"
+	},
+	"custom/info_acrhlinux": {
+		"exec": "~/.config/waybar/updates-arch.sh",
+		"on-click": "alacritty --command $SHELL --interactive -c 'my-tmux-session-create-run-cmd my_system_update.sh'",
+		"interval": 10
+	},
+	"custom/systemd_failed": {
+		"exec": "~/.config/waybar/systemd_show_failed.sh",
+		"interval": 1
+	},
+	"custom/detect_xwayland": {
+		"exec": "~/.config/waybar/detect_xwayland.sh",
+		"interval": 1
+	},
+	"custom/info-snapshot": {
+		"exec": "~/.config/waybar/info-snapshot.sh",
+		"on-click": "alacritty --command $SHELL --interactive -c 'my-tmux-session-create-run-cmd my_snapshot.sh'",
+		"interval": 3
+	},
+	// ##################################################
+
+	// ##################################################
+	// ### modules-center ###############################
+	"sway/workspaces": {
+		"disable-scroll": true,
+		"format": "{name}"
+	},
+	// ##################################################
+
+	// ##################################################
+	// ### modules-right ################################
+	"pulseaudio": {
+		"format": "{icon} {volume}%",
+		"format-bluetooth": "{icon} {volume}%",
+		"format-muted": "󰝟    ",
+		"format-icons": {
+			"headphone": "",
+			"hands-free": "󰋋",
+			"headset": "󰋎",
+			"phone": "",
+			"portable": "",
+			"car": "",
+			"default": ["", ""]
+		},
+		"scroll-step": 1,
+		"smooth-scrolling-threshold": 0.3,
+		"on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+		"on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+		"ignored-sinks": ["Easy Effects Sink"]
+	},
+	"sway/language": {
+		"format": "{flag} {short} {variant}"
+	},
+	"clock": {
+		"format-alt": "{:%a, %d. %b  %H:%M}",
+		"on-click-right": "gnome-calendar"
+	}
+	// ##################################################
+
+}
+
+// # vim: ft=jsonc

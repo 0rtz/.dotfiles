@@ -1,0 +1,11 @@
+allow_images=true
+width=100%
+height=100%
+hide_scroll=true
+prompt=
+hide_search=true
+image_size=64
+key_up=Control_L-k
+key_down=Control_L-j
+key_copy=
+key_exit=Control_L-c
