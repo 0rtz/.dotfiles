@@ -4,8 +4,8 @@ scriptencoding utf-8
 
 let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
 if empty(glob(data_dir . '/autoload/plug.vim'))
-  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  execute 'source ' . data_dir . '/autoload/plug.vim'
+	silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+	execute 'source ' . data_dir . '/autoload/plug.vim'
 endif
 
 call plug#begin()
@@ -209,8 +209,6 @@ Plug 'windwp/nvim-autopairs'
 Plug 'monaqa/dial.nvim'
 " draw diagrams
 Plug 'jbyuki/venn.nvim'
-" run formatters
-Plug 'sbdchd/neoformat'
 " strip trailing whitespaces
 Plug 'ntpeters/vim-better-whitespace'
 " apply editorconfig coding styles as nvim options
@@ -307,7 +305,7 @@ set undofile
 let &undodir = stdpath('data') . '/undohistory'
 " show line numbers
 set number
-" show realative line numbers in focused window only
+" show relative line numbers in focused window only
 augroup my_numbertoggle
 	autocmd!
 	autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu && mode() != "i" | set relativenumber   | endif
@@ -681,6 +679,10 @@ lua require('MyConfigs/nvim-cmp')
 
 " {{{ Git "
 
+nnoremap <leader>gb <cmd>Telescope git_branches<cr>
+nnoremap <leader>gfc <cmd>Telescope git_commits<cr>
+nnoremap <leader>gfb <cmd>Telescope git_bcommits<cr>
+
 " tpope/vim-fugitive
 nnoremap <leader>gs :Git<cr><C-w>T
 nnoremap <leader>gA :Gwrite<cr>
@@ -774,9 +776,6 @@ nnoremap <leader>fj <cmd>Telescope jumplist<cr>
 nnoremap <leader>fk <cmd>Telescope keymaps<cr>
 nnoremap <leader>fN <cmd>Telescope notify<cr>
 nnoremap <leader>fl <cmd>Telescope lsp_dynamic_workspace_symbols<cr>
-nnoremap <leader>gb <cmd>Telescope git_branches<cr>
-nnoremap <leader>gfc <cmd>Telescope git_commits<cr>
-nnoremap <leader>gfb <cmd>Telescope git_bcommits<cr>
 nnoremap <leader>fn <cmd>lua require('telescope.builtin').find_files({
 			\ cwd = "~/.notes",
 			\ find_command = { "find", "-name", "*.md" },
@@ -916,7 +915,7 @@ lua require('MyConfigs/nvim-tree')
 
 nnoremap <silent> \N :NnnPicker<CR>
 let g:nnn#set_default_mappings = 0
-let g:nnn#command = 'NNN_TMPFILE= nnn -o -Q'
+let g:nnn#command = 'NNN_TMPFILE= nnn -o -Q -H -A'
 let g:nnn#layout = 'vnew'
 let g:nnn#action = {
 		\ '<c-t>': 'tab split',
@@ -942,6 +941,7 @@ nnoremap <leader>zx :<c-u>exec v:count.'Tclose!'<cr>
 
 " {{{ Debugging "
 
+" neovim-lua debugger
 lua require('MyConfigs/debug')
 nnoremap <silent> <leader>Uc <Cmd>lua require'dap'.continue()<CR>
 nnoremap <silent> <leader>Us <Cmd>lua require'osv'.launch({port = 8086})<CR>
@@ -1049,10 +1049,10 @@ require('nvim-autopairs').setup{
 EOF
 
 " increment/decrement characters
-nmap  +  <Plug>(dial-increment)
-nmap  -  <Plug>(dial-decrement)
-vmap  <leader>ei  <Plug>(dial-increment)
-vmap  <leader>ed  <Plug>(dial-decrement)
+nmap + <Plug>(dial-increment)
+nmap - <Plug>(dial-decrement)
+vmap <leader>ei <Plug>(dial-increment)
+vmap <leader>ed <Plug>(dial-decrement)
 vmap <leader>eI g<Plug>(dial-increment)
 vmap <leader>eD g<Plug>(dial-decrement)
 
@@ -1084,12 +1084,6 @@ function _G.Toggle_venn()
 	end
 end
 EOF
-
-" run formatters
-let g:shfmt_opt='-ci -i 0'
-let g:neoformat_basic_format_retab = 0
-nnoremap <leader>ef :Neoformat<CR>
-vnoremap <leader>ef :Neoformat<CR>
 
 " strip trailing whitespaces
 let g:better_whitespace_enabled=1
@@ -1208,12 +1202,12 @@ nnoremap <silent> <c-k> <cmd>lua require('illuminate').goto_prev_reference()<CR>
 " show indentation
 lua << EOF
 require("ibl").setup {
-	   indent = { char = "▏" },
-	   scope = {
-		   include = {
-			   node_type = { ["*"] = { "*" } }
-		   },
-	   },
+	indent = { char = "▏" },
+	scope = {
+		include = {
+			node_type = { ["*"] = { "*" } }
+		},
+	},
 }
 EOF
 let s:my_width_of_tab = &tabstop
@@ -1287,8 +1281,6 @@ if exists('g:neovide')
 	set title titlestring=%<%F
 	set guifont=JetBrainsMonoNL\ Nerd\ Font:h16.5:#e-subpixelantialias:#h-slight
 	let g:neovide_refresh_rate=144
-	" --multigrid
-	let g:neovide_scroll_animation_length = 0.6
 endif
 
 " }}} Gui-nvim "

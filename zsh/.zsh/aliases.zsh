@@ -73,6 +73,7 @@ alias ff='plocate --ignore-case'
 alias rg='rg --hidden --no-ignore 2>/dev/null ""'
 alias rga='rga --hidden --no-ignore 2>/dev/null ""'
 alias emj="emoji-fzf preview --prepend | fzf | awk '{ print \$1 }' | my-yank-to-clipboard"
+alias spl="codespell --write-changes"
 alias nls="cat $HOME/.config/nnn/.selection | tr \"\0\" \"\n\""
 alias scsht='grim -g "$(slurp)" - | wl-copy'
 alias screc='wf-recorder --geometry "$(slurp)" -f ./recording.mp4'
