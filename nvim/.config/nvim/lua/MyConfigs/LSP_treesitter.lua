@@ -1,4 +1,5 @@
--- Language servers (lspconfig/mason/null-ls)/Highlights & Motions (treesitter)
+-- Language servers (lspconfig/mason/efm-langserver)
+-- Highlights & Motions (treesitter)
 
 -- Neovim logs :h lspconfig-logging
 -- vim.lsp.set_log_level 'trace'
@@ -16,12 +17,10 @@
 	-- .rst
 	-- lua-nvim
 	-- markdown
-	-- .spec (rpm build files)
 	-- zsh
 	-- Makefile
 	-- cmake
 	-- gitcommit
-	-- text
 
 -- Language servers configs used by the neovim LSP client
 local lsp_conf = require("lspconfig")
@@ -48,9 +47,12 @@ local on_attach = function(client, bufnr)
 
 	-- info about function parameters under cursor
 	buf_set_keymap('n', 'gls', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+
+	-- LSP formatting
 	buf_set_keymap("n", "glf", "<cmd>lua vim.lsp.buf.format({ async = true })<CR>", opts)
 	buf_set_keymap("v", "glf", "<cmd>lua My_range_formatting()<CR>", opts)
 
+	-- LSP diagnostics
 	buf_set_keymap('n', '<leader>ie', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
 	buf_set_keymap('n', '[e', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
 	buf_set_keymap('n', ']e', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
@@ -71,37 +73,21 @@ vim.diagnostic.config({
 		source = "if_many",
 		prefix = '',
 		severity = {
-		  min = vim.diagnostic.severity.INFO,
+			min = vim.diagnostic.severity.INFO,
 		},
 		severity_sort = true,
 	},
 })
 
 -- Language Servers package manager
+-- NOTE: autoinstalls LSP setup with lsp_conf.$LSP.setup
 require("mason").setup()
 require("mason-lspconfig").setup {
 	automatic_installation = { exclude = { "clangd" } }
 }
 
--- Language Server within neovim that uses various linters as backend
-local null_ls = require("null-ls")
--- buffer-scope null-ls settings
-local on_attach_null_ls = function(_, bufnr)
-	local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-	local opts = { noremap=true, silent=true }
-
-	buf_set_keymap("n", "glf", "<cmd>lua vim.lsp.buf.format({ async = true })<CR>", opts)
-    buf_set_keymap("v", "glf", "<cmd>lua My_range_formatting()<CR>", opts)
-	buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
-
-	buf_set_keymap('n', '<leader>ie', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
-	buf_set_keymap('n', '[e', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
-	buf_set_keymap('n', ']e', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
-	buf_set_keymap('n', '\\d', '<cmd>lua My_toggle_diagnostics_buffer()<CR>', opts)
-	buf_set_keymap('n', '\\D', '<cmd>lua My_toggle_diagnostics()<CR>', opts)
-end
--- which linters to use
-local null_ls_sources = {}
+-- which linters/formatters to use
+local efmls_sources = {}
 
 -- which languages treesitter support
 local treesitter_sources = {}
@@ -109,9 +95,10 @@ local treesitter_sources = {}
 -- Configured languages: ---------------------------------------------------------------------------
 
 -- bash
--- Neoformat: shfmt
-table.insert(null_ls_sources, null_ls.builtins.formatting.shellharden)
-table.insert(null_ls_sources, null_ls.builtins.code_actions.shellcheck)
+efmls_sources.sh = {
+	require('efmls-configs.formatters.shellharden'),
+	require('efmls-configs.formatters.shfmt')
+}
 table.insert(treesitter_sources, "bash")
 -- includes shellcheck linter support
 lsp_conf.bashls.setup({
@@ -120,7 +107,12 @@ lsp_conf.bashls.setup({
 })
 
 -- C/C++
-table.insert(null_ls_sources, null_ls.builtins.diagnostics.cppcheck)
+efmls_sources.c = {
+	require('efmls-configs.linters.cppcheck')
+}
+efmls_sources.cpp = {
+	require('efmls-configs.linters.cppcheck')
+}
 table.insert(treesitter_sources, "c")
 table.insert(treesitter_sources, "cpp")
 if vim.fn.executable("clangd") then
@@ -146,8 +138,10 @@ if vim.fn.executable("clangd") then
 end
 
 -- yaml
--- Neoformat: prettier
-table.insert(null_ls_sources, null_ls.builtins.diagnostics.yamllint)
+efmls_sources.yaml = {
+	require('efmls-configs.linters.yamllint'),
+	require('efmls-configs.formatters.prettier')
+}
 table.insert(treesitter_sources, "yaml")
 lsp_conf.yamlls.setup({
 	on_attach = on_attach,
@@ -155,7 +149,9 @@ lsp_conf.yamlls.setup({
 })
 
 -- json
--- Neoformat: prettier
+efmls_sources.json = {
+	require('efmls-configs.formatters.prettier'),
+}
 table.insert(treesitter_sources, "json")
 table.insert(treesitter_sources, "json5")
 table.insert(treesitter_sources, "jsonc")
@@ -170,7 +166,9 @@ lsp_conf.jsonls.setup({
 })
 
 -- vim
-table.insert(null_ls_sources, null_ls.builtins.diagnostics.vint)
+efmls_sources.vim = {
+	require('efmls-configs.linters.vint'),
+}
 table.insert(treesitter_sources, "vim")
 lsp_conf.vimls.setup({
 	on_attach = on_attach,
@@ -178,7 +176,9 @@ lsp_conf.vimls.setup({
 })
 
 -- Dockerfile
-table.insert(null_ls_sources, null_ls.builtins.diagnostics.hadolint)
+efmls_sources.dockerfile = {
+	require('efmls-configs.linters.hadolint'),
+}
 table.insert(treesitter_sources, "dockerfile")
 lsp_conf.dockerls.setup({
 	on_attach = on_attach,
@@ -199,8 +199,6 @@ lsp_conf.ansiblels.setup({
 })
 
 -- xml
--- Neoformat: prettier
-table.insert(null_ls_sources, null_ls.builtins.formatting.xmllint)
 lsp_conf.lemminx.setup({
 	on_attach = on_attach,
 	capabilities = capabilities
@@ -235,15 +233,10 @@ lsp_conf.lua_ls.setup({
 })
 
 -- markdown
--- Neoformat: prettier
-table.insert(null_ls_sources, null_ls.builtins.diagnostics.markdownlint)
+efmls_sources.markdown = {
+	require('efmls-configs.linters.markdownlint'),
+}
 table.insert(treesitter_sources, "markdown")
-
--- .spec (rpm build files)
-table.insert(null_ls_sources, null_ls.builtins.diagnostics.rpmspec)
-
--- zsh
-table.insert(null_ls_sources, null_ls.builtins.diagnostics.zsh)
 
 -- Makefile
 table.insert(treesitter_sources, "make")
@@ -257,47 +250,28 @@ lsp_conf.cmake.setup({
 })
 
 -- gitcommit
-table.insert(null_ls_sources, null_ls.builtins.diagnostics.gitlint)
 table.insert(treesitter_sources, "gitcommit")
+efmls_sources.gitcommit = {
+	require('efmls-configs.linters.gitlint'),
+}
+
+-- all filetypes
+efmls_sources['='] = {
+	require('efmls-configs.linters.codespell'),
+}
 
 ---------------------------------------------------------------------------
 
--- null-ls sources to apply to all files
-table.insert(null_ls_sources, null_ls.builtins.diagnostics.codespell)
-table.insert(null_ls_sources, null_ls.builtins.formatting.codespell)
-table.insert(null_ls_sources, null_ls.builtins.diagnostics.editorconfig_checker.with({
-		command = "editorconfig-checker",
-		args = {
-			"-no-color",
-			"-disable-indent-size",
-			"$FILENAME",
-		},
-	})
-)
--- remove duplicate elements from null_ls_sources
-local seen_null_ls_sources = {}
-for index,item in ipairs(null_ls_sources) do
-	if seen_null_ls_sources[item] then
-		table.remove(null_ls_sources, index)
-	else
-		seen_null_ls_sources[item] = true
-	end
-end
--- apply null-ls configurations
-null_ls.setup({
-	sources = null_ls_sources,
-	on_attach = on_attach_null_ls,
-	on_init = function(new_client, _)
-		new_client.offset_encoding = 'utf-16'
-	end,
-	-- :NullLsLog
-	-- debug = true,
-	-- log = {
-	-- 	enable = true,
-	-- 	level = "trace",
-	-- 	use_console = "sync",
-	-- },
-})
+-- apply configured linters/formatters
+lsp_conf.efm.setup {
+	init_options = {documentFormatting = true},
+	settings = {
+		rootMarkers = { ".git", "_darcs", ".hg", ".bzr", ".svn", "package.json", ".root" },
+		languages = efmls_sources,
+	},
+	on_attach = on_attach,
+	capabilities = capabilities
+}
 
 -- treesitter specific sources
 table.insert(treesitter_sources, "comment")

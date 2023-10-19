@@ -24,8 +24,8 @@ Plug 'neovim/nvim-lspconfig'
 " Language Servers package manager
 Plug 'williamboman/mason.nvim'
 Plug 'williamboman/mason-lspconfig.nvim',
-" Language Server within neovim that uses various linters as backend
-Plug 'jose-elias-alvarez/null-ls.nvim'
+" efm linters & formatters configuration plugin
+Plug 'creativenull/efmls-configs-nvim'
 " validate some popular JSON document types
 Plug 'b0o/schemastore.nvim'
 " Clangd's off-spec features
@@ -495,9 +495,9 @@ nnoremap <leader>iH :call <SID>hl_groups_info()<CR>
 
 lua require('MyConfigs/LSP_treesitter')
 
+" LSP info
 nnoremap <leader>il <cmd>LspInfo<CR>
 nnoremap <leader>iL <cmd>Mason<CR>
-nnoremap <leader>in <cmd>NullLsInfo<CR>
 
 " preview of diagnostics
 lua << EOF
@@ -598,9 +598,6 @@ EOF
 lua << EOF
 require("fidget").setup({
 	sources = {
-		["null-ls"] = {
-			ignore = true,
-		},
 		["ansiblels"] = {
 			ignore = true,
 		},
