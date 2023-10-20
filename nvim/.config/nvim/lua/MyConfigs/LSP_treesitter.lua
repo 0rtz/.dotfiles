@@ -115,6 +115,7 @@ efmls_sources.cpp = {
 }
 table.insert(treesitter_sources, "c")
 table.insert(treesitter_sources, "cpp")
+-- only use clangd executable installed on host
 if vim.fn.executable("clangd") then
 	local clangd_capabilities = {
 		textDocument = {
