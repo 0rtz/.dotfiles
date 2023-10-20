@@ -124,17 +124,11 @@ if vim.fn.executable("clangd") then
 		},
 		offsetEncoding = { 'utf-16' },
 	}
-	-- Clangd's off-spec features
-	require("clangd_extensions").setup {
-		server = {
-			on_attach = on_attach,
-			capabilities = vim.tbl_deep_extend('keep', capabilities, clangd_capabilities),
-			cmd = {'clangd', '--header-insertion=never'},
-		},
-		extensions = {
-			autoSetHints = false,
-		}
-	}
+	lsp_conf.clangd.setup({
+		on_attach = on_attach,
+		capabilities = vim.tbl_deep_extend('keep', capabilities, clangd_capabilities),
+		cmd = {'clangd', '--header-insertion=never'},
+	})
 end
 
 -- yaml
@@ -218,11 +212,17 @@ lsp_conf.lua_ls.setup({
 	capabilities = capabilities,
 	settings = {
 		Lua = {
+			runtime = {
+				version = 'LuaJIT'
+			},
 			diagnostics = {
 				globals = {'vim'},
 			},
 			workspace = {
-				library = vim.api.nvim_get_runtime_file("", true),
+				-- library = vim.api.nvim_get_runtime_file("", true),
+				library = {
+					vim.env.VIMRUNTIME
+				},
 				checkThirdParty = false,
 			},
 			telemetry = {
