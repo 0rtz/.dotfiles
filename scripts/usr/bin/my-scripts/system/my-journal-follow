@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+# Select a systemd unit with fzf and follow its journal
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+require_cmd fzf journalctl systemctl
+
+unit=$(
+	systemctl list-units --all --no-legend --no-pager |
+	awk '{print $1}' |
+	fzf --prompt="Unit> " \
+		--preview='systemctl status --no-pager {} 2>/dev/null'
+) || exit
+
+[[ -z "$unit" ]] && exit
+
+echo "Following journal for: $unit"
+journalctl -u "$unit" -f --no-pager

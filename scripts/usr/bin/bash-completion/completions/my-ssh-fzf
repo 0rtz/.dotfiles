@@ -1,0 +1,11 @@
+# shellcheck shell=bash
+_my_ssh_fzf() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+	local config="${HOME}/.ssh/config"
+	if [[ -f "$config" ]]; then
+		local hosts
+		hosts=$(awk '/^Host / && !/\*/ {print $2}' "$config")
+		COMPREPLY=($(compgen -W "$hosts" -- "$cur"))
+	fi
+}
+complete -F _my_ssh_fzf my-ssh-fzf

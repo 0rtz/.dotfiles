@@ -1,0 +1,21 @@
+#!/bin/bash
+set -euo pipefail
+
+op=$( echo -e " Hibernate\n Poweroff\n Reboot\n Lock" | fzf | awk '{print tolower($2)}' ) || exit 0
+case "$op" in
+	hibernate)
+		;&
+	poweroff)
+		;&
+	reboot)
+		systemctl "$op"
+		;;
+	lock)
+		if command -v hyprlock &>/dev/null; then
+			hyprlock
+		elif command -v swaylock &>/dev/null; then
+			swaylock --indicator-idle-visible
+		fi
+		exit 0
+		;;
+esac

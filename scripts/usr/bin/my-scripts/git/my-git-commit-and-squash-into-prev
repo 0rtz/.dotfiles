@@ -1,0 +1,35 @@
+#!/bin/bash
+set -euo pipefail
+# Commit staged files and squash into previous commit (history rewrite)
+
+if ! git rev-parse --git-dir &>/dev/null; then
+	echo "ERROR: Not a git repository" >&2
+	exit 1
+fi
+
+if ! git diff --cached --quiet; then
+	echo "Staged files:"
+	git diff --name-only --cached
+else
+	echo "ERROR: No staged changes to commit" >&2
+	exit 1
+fi
+
+if ! git rev-parse --verify --quiet HEAD~1; then
+	echo "ERROR: No previous commit to squash into" >&2
+	exit 1
+fi
+
+echo ""
+echo "Squash staged changes into previous commit?"
+read -n 1 -p "y/n: " reply
+echo
+if [[ "$reply" != [yY] ]]; then
+	echo "Aborting..."
+	exit 1
+fi
+
+git commit --amend --no-edit || {
+	echo "ERROR: Commit amend failed" >&2
+	exit 1
+}

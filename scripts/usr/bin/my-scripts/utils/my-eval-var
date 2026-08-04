@@ -1,0 +1,34 @@
+#!/bin/bash
+
+if [[ -z "$1" ]]; then
+	echo "Usage: my-eval-var <variable-name>"
+	exit 1
+fi
+
+if ! declare -p "$1" &>/dev/null; then
+	echo "ERROR: Variable '$1' does not exist" >&2
+	exit 1
+fi
+
+cmd="${!1}"
+
+if [[ -z "$cmd" ]]; then
+	echo "ERROR: Variable '$1' is empty" >&2
+	exit 1
+fi
+
+printf '%s\n' "cmd:"
+printf '%s\n' "******************************"
+printf '%s\n' "$cmd"
+printf '%s\n' "******************************"
+echo
+
+read -n 1 -p "Execute? (y/n): " reply
+echo
+if [[ "$reply" != [yY] ]]; then
+	echo "Aborting..."
+	exit 1
+fi
+echo
+
+eval "$cmd"

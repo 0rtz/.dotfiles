@@ -1,0 +1,74 @@
+#!/bin/bash
+
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+require_cmd grim slurp swappy
+
+FULLSCREEN_MODE=false
+ANNOTATE_MODE=false
+SCREENSHOT_DIR="$HOME/Screenshots"
+TIMESTAMP="$(date +%Y%m%d%H%M%S)"
+SCREENSHOT_LOCATION="$SCREENSHOT_DIR/Screenshot_$TIMESTAMP.png"
+
+usage="$(basename "$0") - take screenshot (saves to file AND clipboard)
+
+Usage: $(basename "$0") [options]
+
+Options:
+    -h, --help          Show this help text
+    -f, --full-screen   Screenshot full screen
+    -a, --annotate      Open swappy for annotation before saving
+"
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -f|--full-screen)
+            FULLSCREEN_MODE=true
+            shift
+            ;;
+        -a|--annotate)
+            ANNOTATE_MODE=true
+            shift
+            ;;
+        -h|--help)
+            echo "$usage"
+            exit 0
+            ;;
+        -*)
+            echo "Error: Unknown option: \"$1\"" >&2
+            echo "$usage" >&2
+            exit 1
+            ;;
+        *)
+            echo "Error: Unexpected argument: \"$1\"" >&2
+            echo "$usage" >&2
+            exit 1
+            ;;
+    esac
+done
+
+mkdir -p "$SCREENSHOT_DIR" || {
+    echo "Error: Failed to create screenshot directory" >&2
+    exit 1
+}
+
+grim_args=()
+if [[ "$FULLSCREEN_MODE" != true ]]; then
+    grim_args+=(-g "$(slurp -w 0)")
+fi
+
+if [[ "$ANNOTATE_MODE" == true ]]; then
+    grim "${grim_args[@]}" - | swappy -f - -o "$SCREENSHOT_LOCATION" || {
+        echo "Error: Failed to capture/annotate screenshot" >&2
+        exit 1
+    }
+    wl-copy < "$SCREENSHOT_LOCATION"
+else
+    grim "${grim_args[@]}" - | tee "$SCREENSHOT_LOCATION" | wl-copy || {
+        echo "Error: Failed to capture screenshot" >&2
+        exit 1
+    }
+fi
+
+notify-send --expire-time=2000 \
+    "$(basename "$SCREENSHOT_LOCATION") saved to clipboard"

@@ -1,0 +1,21 @@
+{
+	"runtime.version": "LuaJIT",
+
+	"diagnostics.globals": [
+		"vim",
+		"hl"
+	],
+
+	"workspace.library": [
+		"/usr/share/nvim/runtime",
+		"~/.local/share/nvim/site/pack/core/opt",
+
+		"~/.config/yazi/plugins/types.yazi/",
+
+		"/usr/share/hypr/stubs"
+	],
+
+	"workspace.checkThirdParty": false,
+
+	"completion.callSnippet": "Replace"
+}

@@ -1,0 +1,46 @@
+#!/bin/bash
+# Show recently installed/updated packages
+
+# shellcheck source=../../../my-scripts-lib/init.sh disable=SC2154
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+detect_pkg_manager || exit 1
+
+# Default number of entries
+count=20
+
+# Parse command line argument (optional -n <count>)
+while getopts ":n:" opt; do
+  case $opt in
+    n)
+      if [[ "$OPTARG" =~ ^[0-9]+$ && "$OPTARG" -gt 0 ]]; then
+        count="$OPTARG"
+      else
+        echo "Error: count must be a positive integer."
+        exit 1
+      fi
+      ;;
+    \?)
+      echo "Usage: $0 [-n number_of_entries]"
+      exit 1
+      ;;
+  esac
+done
+
+case "$_my_pkg_manager" in
+  pacman)
+    require_cmd expac
+    expac --timefmt='%Y-%m-%d %T' '%l\t%n' |
+      sort -r | head -n "$count" | column -t -s $'\t'
+    ;;
+  apt)
+    grep -E "install |upgrade " /var/log/dpkg.log 2>/dev/null |
+      tail -n "$count" | awk '{print $1, $2, $4}'
+    ;;
+  dnf)
+    dnf history list --reverse | tail -n "$count"
+    ;;
+  zypper)
+    zypper search --installed-only --sort-by-repo |
+      head -n "$count"
+    ;;
+esac

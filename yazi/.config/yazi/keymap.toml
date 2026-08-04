@@ -1,0 +1,73 @@
+# https://yazi-rs.github.io/docs/configuration/keymap
+# Default keymaps: https://yazi-rs.github.io/docs/quick-start
+
+[mgr]
+prepend_keymap = [
+	# Drop to shell
+	# WARN: must be 'fish' not $SHELL for zellij to resurrect yazi via post_command_discovery_hook
+	{ on = ["s"], for = "unix", run = 'shell --block fish', desc = "Open $SHELL here" },
+
+	# https://yazi-rs.github.io/docs/plugins/builtins
+	{ on = ["f"], run = 'plugin fzf', desc = "Fuzzy find file" },
+
+	# https://github.com/yazi-rs/plugins/tree/main/smart-enter.yazi
+	{ on = ["l"], run  = "plugin smart-enter", desc = "Enter the child directory, or open the file" },
+	# Open in neovide
+	{ on = ["L"], run = "shell 'neovide \"$@\"' --orphan", desc = "Open in Neovide" },
+	# Open files with sudo permissions
+	{ on = ["S"], run = "shell 'sudoedit \"$@\"' --block", desc = "Sudoedit" },
+
+	# Overwrite same file on copy
+	{ on = ["p"], run  = "plugin smart-paste", desc = "Paste into the hovered directory or CWD" },
+
+	# https://github.com/yazi-rs/plugins/tree/main/toggle-pane.yazi
+	{ on = [".", "p"], run	= "plugin toggle-pane min-preview", desc = "Show or hide the preview pane" },
+	{ on = [".", "f"], run = "plugin toggle-pane max-current", desc = "Maximize current pane" },
+
+	# Go to directory
+	# https://yazi-rs.github.io/docs/plugins/builtins
+	{ on = ["z"], run = "plugin zoxide", desc = "zoxide smarter cd" },
+	# Bookmarks
+	{ on = ["g", "d"], run = "cd ~/dotfiles", desc = "Dotfiles" },
+	{ on = ["g", "c"], run = "cd ~/.config", desc = "Config" },
+	{ on = ["g", "n"], run = "cd ~/notes", desc = "Notes" },
+	{ on = ["g", "s"], run = "cd ~/usr/bin", desc = "Scripts" },
+	{ on = ["g", "v"], run = "cd ~/.local/share/nvim/site/pack/core/opt", desc = "Neovim plugins" },
+	{ on = ["g", "b"], run = "cd ~/Build", desc = "Build" },
+	{ on = ["g", "p"], run = "cd ~/Backed", desc = "Backed" },
+	{ on = ["g", "a"], run = "cd ~/.tmp", desc = "Tmp" },
+	{ on = ["g", "t"], run = "cd /tmp", desc = "System tmp" },
+	{ on = ["g", "T"], run = "cd ~/.local/share/Trash", desc = "Trash" },
+	{ on = ["g", "/"], run = "cd /", desc = "System root" },
+	# Change directory back to the closest project root
+	{ on = [ "g", "r" ], run = "plugin project-root", desc = "Go to project root" },
+	# Navigate parent directory without leaving CWD
+	{ on = ["<C-k>"], run = "plugin parent-arrow -1", desc = "Navigate parent up" },
+	{ on = ["<C-j>"], run = "plugin parent-arrow 1", desc = "Navigate parent down" },
+
+	# Tabs
+	# Smart tab: create a tab and enter the hovered directory
+	{ on = ["t"], run = "plugin smart-tab", desc = "Create tab in hovered dir" },
+	{ on = ["<C-l>"], run = "tab_swap 1", desc = "Move tab to the right" },
+	{ on = ["<C-h>"], run = "tab_swap -1", desc = "Move tab to the left" },
+	{ on = ["q"], run = "plugin confirm-quit", desc = "Confirm quit with multiple tabs" },
+
+	# Copy to system clipboard
+	{ on = ["c", "n"], run = "plugin yank-name", desc = "Copy file name to clipboard" },
+	{ on = ["c", "p"], run = "plugin yank-path", desc = "Copy file path to clipboard" },
+	{ on = ["c", "d"], run = "plugin yank-dir", desc = "Copy dir path to clipboard" },
+	# Change directory to path from system clipboard
+	{ on = ["c", "c"], run = "plugin clipboard-cd", desc = "cd to clipboard path" },
+
+	# Toggle executable permission
+	{ on = ["u", "x"], run = "plugin chmod-x", desc = "Toggle +x on selected files" },
+
+	# https://github.com/ndtoan96/ouch.yazi
+	{ on = ["C"], run = "plugin ouch", desc = "Compress with ouch" },
+]
+
+[input]
+prepend_keymap = [
+	# Close input prompt with a single escape (instead of exiting vim input mode first)
+	{ on = ["<Esc>"], run = "close", desc = "Cancel input" }
+]

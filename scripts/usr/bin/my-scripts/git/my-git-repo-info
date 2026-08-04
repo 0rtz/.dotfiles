@@ -1,0 +1,84 @@
+#!/bin/bash
+set -uo pipefail
+# Show repository statistics
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+require_cmd bat
+
+if ! git rev-parse --git-dir &>/dev/null; then
+	echo "ERROR: Not a git repository" >&2
+	exit 1
+fi
+
+if command -v "onefetch" > /dev/null 2>&1 ; then
+	print_heading_blue "$(git rev-parse --show-toplevel) repository"
+	print_heading_blue ""
+  onefetch --nerd-fonts --number-of-file-churns 0 --number-of-authors 0
+fi
+
+print_heading_blue ""
+print_heading_blue "My configured username/email for repo"
+my-git-repo-config
+
+print_heading_blue ""
+print_heading_blue "Top commit authors"
+git log --all --pretty=format:"%an <%ae>" |
+	sort | uniq -c | sort -nr | head
+
+print_heading_blue ""
+print_heading_blue "Latest local branches"
+git for-each-ref --sort=-committerdate \
+	--format='%(committerdate:relative)  %(refname:short)' \
+	refs/heads
+
+print_heading_blue ""
+print_heading_blue "Latest remote branches"
+git for-each-ref --sort=-committerdate \
+	--format='%(committerdate:relative)  %(refname:short)' \
+	refs/remotes
+
+print_heading_blue ""
+print_heading_blue "Most changed files"
+git log --all -M -C --name-only --format='format:' -z |
+  tr '\0' '\n' |
+  awk '
+    NF { count[$0]++ }
+    END {
+      for (file in count)
+        printf "%7d %s\n", count[file], file
+    }
+  ' |
+  sort -rn |
+  head
+
+if command -v "tokei" > /dev/null 2>&1 ; then
+	print_heading_blue ""
+	print_heading_blue "Statistics about code"
+	tokei --sort lines --num-format commas
+fi
+
+print_heading_blue ""
+print_heading_blue "Largest blobs (history)"
+git rev-list --objects --all |
+  git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' |
+  awk '$1=="blob" {
+          size=$3
+          $1=$2=$3=""               # remove the first 3 fields from $0
+          sub(/^[ \t]+/, "", $0)    # remove leading space/tabs
+          print size "\t" $0
+        }' |
+  sort -nr |
+  head |
+  while IFS=$'\t' read -r size file; do
+    printf "\t%8s  %s\n" \
+      "$(numfmt --to=iec-i --suffix=B "$size" 2>/dev/null || echo "${size}B")" \
+      "$file"
+  done
+
+print_heading_blue ""
+print_heading_blue "Heaviest files"
+fd -t f -x du -h {} | sort -rh | head -n 10
+
+print_heading_blue ""
+print_heading_blue "Heaviest directories"
+fd -t d -x du -sh {} | sort -rh | head -n 10

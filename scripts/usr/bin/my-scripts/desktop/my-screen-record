@@ -1,0 +1,70 @@
+#!/bin/bash
+set -euo pipefail
+
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+require_cmd wf-recorder slurp
+
+OBS_FLAG=""
+FULL_SCREEN_FLAG=""
+VIDEO_LOCATION="$HOME/Screenshots/Screencast_$(date +%Y%m%d%H%M%S).mp4"
+
+usage="$(basename "$0") - record screen, by default saves to $VIDEO_LOCATION
+
+Usage: $(basename "$0") [options]
+
+options: [-h|--help] [-f | --full-screen]
+
+where:
+ [-h | --help]
+	Show this help text
+
+ [-f | --full-screen]
+	 Record full-screen
+
+ [-o | --obs]
+	 Record using OBS (alt+g keymap in ~/.config/hypr/hyprland_local.conf to start/stop recording)
+	 OBS exits on killwindow after some time instead of hiding to tray
+"
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -f|--full-screen)
+			FULL_SCREEN_FLAG="1"
+            shift
+        ;;
+        -o|--obs)
+			OBS_FLAG="1"
+            shift
+        ;;
+        -h|--help)
+            echo "${usage}"
+            exit
+        ;;
+        -*)
+            echo "Error: Unknown option: \"$1\"" >&2
+            exit 1
+        ;;
+    esac
+done
+
+if [[ -n $FULL_SCREEN_FLAG ]]; then
+    notify-send --expire-time=2000 "Started recording..."
+	wf-recorder -f "$VIDEO_LOCATION" >/dev/null
+    notify-send --expire-time=2000 "Saved recording to $VIDEO_LOCATION"
+	exit 0
+fi
+
+if [[ -n $OBS_FLAG ]]; then
+	obs --startrecording
+	exit 0
+fi
+
+if pgrep -x wf-recorder >/dev/null; then
+    pkill -INT wf-recorder
+    notify-send --expire-time=2000 "Recording stopped"
+else
+    RECORDED_AREA=$(slurp)
+    notify-send --expire-time=2000 "Started recording to $VIDEO_LOCATION..."
+    wf-recorder --geometry "$RECORDED_AREA" -f "$VIDEO_LOCATION" >/dev/null 2>&1
+fi

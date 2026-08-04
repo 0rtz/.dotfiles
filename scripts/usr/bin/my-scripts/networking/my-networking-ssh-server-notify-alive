@@ -1,0 +1,23 @@
+#!/bin/bash
+set -euo pipefail
+# SSH (TCP) availability
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+if [[ -z "$1" ]]; then
+	echo "Usage: my-networking-ssh-server-notify-alive <host> [port=22] [interval=5]"
+	exit 1
+fi
+
+require_cmd nc notify-send
+
+host="$1"
+port="${2:-22}"
+interval="${3:-5}"
+
+echo "Waiting for SSH on $host:$port..."
+
+while ! nc -z -w 1 "$host" "$port" &>/dev/null; do
+	sleep "$interval"
+done
+
+notify-send -a "Network Monitor" "SSH server is alive" "$host:$port is now reachable"

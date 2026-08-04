@@ -1,0 +1,22 @@
+#!/bin/bash
+set -euo pipefail
+# Ping-based availability
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+if [[ -z "$1" ]]; then
+	echo "Usage: my-networking-server-notify-alive <host> [interval=5]"
+	exit 1
+fi
+
+require_cmd notify-send
+
+host="$1"
+interval="${2:-5}"
+
+echo "Waiting for $host to respond to ping..."
+
+while ! ping -c 1 -W 1 "$host" &>/dev/null; do
+	sleep "$interval"
+done
+
+notify-send -a "Network Monitor" "Host is alive" "$host is now reachable"

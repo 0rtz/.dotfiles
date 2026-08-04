@@ -1,0 +1,21 @@
+#!/bin/bash
+set -euo pipefail
+
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+require_cmd lnav
+
+if [ -t 0 ]; then
+    # stdin is a terminal
+    if [ "$#" -gt 0 ]; then
+        exec lnav "$@"
+    else
+        echo "Usage:"
+        echo "  my-lnav-wrapper file.log"
+        echo "  command | my-lnav-wrapper"
+        exit 1
+    fi
+else
+    # stdin is piped
+    exec lnav "$@" -
+fi

@@ -1,0 +1,62 @@
+#!/bin/bash
+# Search and install packages from repos
+
+# shellcheck source=../../../my-scripts-lib/init.sh disable=SC2154
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+detect_pkg_manager || exit 1
+
+if [[ $# -gt 0 ]]; then
+	# Install packages from provided arguments directly
+    packages=("$@")
+else
+    require_cmd fzf
+fi
+
+case "$_my_pkg_manager" in
+    pacman)
+        if [[ $# -eq 0 ]]; then
+            mapfile -t packages < <(
+                pacman -Slq | fzf --multi --preview 'pacman -Si {1}' \
+                    --prompt "Install package> " \
+                    --header "Tab to select multiple"
+            ) || exit
+        fi
+        [[ ${#packages[@]} -gt 0 ]] && sudo pacman -S "${packages[@]}"
+        ;;
+
+    apt)
+        if [[ $# -eq 0 ]]; then
+            mapfile -t packages < <(
+                apt-cache pkgnames | sort | \
+                fzf --multi --preview 'apt-cache show {1}' \
+                    --prompt "Install package> " \
+                    --header "Tab to select multiple"
+            ) || exit
+        fi
+        [[ ${#packages[@]} -gt 0 ]] && sudo apt install "${packages[@]}"
+        ;;
+
+    dnf)
+        if [[ $# -eq 0 ]]; then
+            mapfile -t packages < <(
+                dnf repoquery --qf '%{NAME}' 2>/dev/null | sort -u | \
+                fzf --multi --preview 'dnf info {1}' \
+                    --prompt "Install package> " \
+                    --header "Tab to select multiple"
+            ) || exit
+        fi
+        [[ ${#packages[@]} -gt 0 ]] && sudo dnf install "${packages[@]}"
+        ;;
+
+    zypper)
+        if [[ $# -eq 0 ]]; then
+            mapfile -t packages < <(
+                zypper pa | tail -n +5 | awk '{print $5}' | sort -u | \
+                fzf --multi --preview 'zypper info {1}' \
+                    --prompt "Install package> " \
+                    --header "Tab to select multiple"
+            ) || exit
+        fi
+        [[ ${#packages[@]} -gt 0 ]] && sudo zypper install "${packages[@]}"
+        ;;
+esac

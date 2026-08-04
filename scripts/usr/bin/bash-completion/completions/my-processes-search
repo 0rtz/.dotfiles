@@ -1,0 +1,9 @@
+# shellcheck shell=bash
+_my_processes_search() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+
+	if (( COMP_CWORD == 1 )); then
+		COMPREPLY=($(compgen -W "$(ps -eo comm= 2>/dev/null | sort -u)" -- "$cur"))
+	fi
+}
+complete -F _my_processes_search my-processes-search

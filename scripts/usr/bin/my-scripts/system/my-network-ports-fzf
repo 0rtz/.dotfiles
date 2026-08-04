@@ -1,0 +1,50 @@
+#!/bin/bash
+set -euo pipefail
+# Browse listening ports with fzf, show process details (root-aware)
+
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+require_cmd fzf ss ps sudo
+
+config_sudo() {
+	if [[ $EUID -ne 0 ]]; then
+		echo sudo
+	fi
+}
+
+SUDO=$(config_sudo)
+
+# Warm sudo once (avoids repeated prompts in preview)
+if [[ -n "$SUDO" ]]; then
+	$SUDO -v || exit 1
+fi
+
+selected=$(
+	$SUDO ss -tulnp 2>/dev/null |
+	fzf --header-lines=1 \
+		--prompt="Port> " \
+		--preview='sh -c "
+			line=\"\$1\"
+			pid=\$(echo \"\$line\" | sed -n \"s/.*pid=\\([0-9]*\\).*/\\1/p\")
+
+			if [ -n \"\$pid\" ]; then
+				pscmd=ps
+				if [ \"$(id -u)\" -ne 0 ]; then
+					pscmd=\"sudo ps\"
+				fi
+				\$pscmd -p \"\$pid\" -o pid,ppid,user,%cpu,%mem,etime,args
+			else
+				echo \"No process info available\"
+			fi
+		" sh {}'
+) || exit
+
+pid=$(echo "$selected" | sed -n 's/.*pid=\([0-9]*\).*/\1/p')
+port=$(echo "$selected" | awk '{print $5}')
+
+echo "Port: $port"
+
+if [[ -n "$pid" ]]; then
+	echo "PID:  $pid"
+	$SUDO ps -p "$pid" -o pid,ppid,user,%cpu,%mem,etime,args
+fi

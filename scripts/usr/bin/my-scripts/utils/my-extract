@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+# Universal archive extractor using ouch
+# Supports: tar, gz, xz, zst, bz2, zip, 7z, rar, and more
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+if (( $# == 0 )); then
+	echo "Usage: my-extract <archive> [archive...]"
+	echo "       my-extract -l <archive>   # list contents"
+	exit 1
+fi
+
+require_cmd ouch
+
+list_mode=0
+if [[ "$1" == "-l" || "$1" == "--list" ]]; then
+	list_mode=1
+	shift
+fi
+
+for archive in "$@"; do
+	if [[ ! -f "$archive" ]]; then
+		echo "ERROR: '$archive' not found" >&2
+		continue
+	fi
+
+	if (( list_mode )); then
+		ouch list "$archive"
+	else
+		echo "Extracting: $archive"
+		ouch decompress "$archive"
+	fi
+done

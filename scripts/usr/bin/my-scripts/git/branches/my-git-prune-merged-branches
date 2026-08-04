@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+# Delete local branches merged into base branch
+
+base="${1:-$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@')}"
+
+echo "Deleting branches merged into '$base'..."
+
+git branch --merged "$base" |
+	grep -vE "^\*|$base$" |
+	while read -r b; do
+		echo "  - $b"
+		git branch -d "$b"
+	done || true

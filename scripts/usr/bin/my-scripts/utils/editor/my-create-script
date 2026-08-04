@@ -1,0 +1,23 @@
+#!/bin/bash
+set -euo pipefail
+# Create a new executable script
+# Usage: my-create-script [filename]
+
+: "${EDITOR:=vi}"
+
+file="$1"
+
+# Generate random name if not provided
+if [[ -z "$file" ]]; then
+	file=$(head -c 4 /dev/urandom | xxd -p)
+fi
+
+if [[ -e "$file" ]]; then
+	my-editor-open "$file"
+	exit
+fi
+
+echo -e '#!/bin/bash\n\n' > "$file"
+chmod +x "$file"
+my-editor-open "$file"
+echo "\"$file\" script created"

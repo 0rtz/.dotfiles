@@ -1,0 +1,17 @@
+# shellcheck shell=bash
+_my_package_dependencies() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+
+	if (( COMP_CWORD == 1 )); then
+		local pkgs
+		if command -v pacman &>/dev/null; then
+			pkgs=$(pacman -Qq 2>/dev/null)
+		elif command -v dpkg-query &>/dev/null; then
+			pkgs=$(dpkg-query -W -f='${Package}\n' 2>/dev/null)
+		elif command -v rpm &>/dev/null; then
+			pkgs=$(rpm -qa --qf '%{NAME}\n' 2>/dev/null)
+		fi
+		COMPREPLY=($(compgen -W "$pkgs" -- "$cur"))
+	fi
+}
+complete -F _my_package_dependencies my-package-dependencies

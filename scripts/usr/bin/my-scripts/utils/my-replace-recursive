@@ -1,0 +1,96 @@
+#!/bin/bash
+set -euo pipefail
+
+dry_run=0
+use_regex=0
+
+# ---- option parsing ----
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		-n|--dry-run)
+			dry_run=1
+			shift
+			;;
+		-r|--regex)
+			use_regex=1
+			shift
+			;;
+		-h|--help)
+			cat <<'EOF'
+Usage:
+	my-replace-recursive [OPTIONS] <old_string> <new_string> [target_dir]
+
+Description:
+	Recursively replace text in files using ripgrep (rg) and sd.
+
+Options:
+	-n, --dry-run	Show what would be changed without modifying files
+	-r, --regex	Treat old_string as a regular expression
+	-h, --help	Show this help message
+
+Examples:
+	my-replace-recursive foo bar
+	my-replace-recursive -n foo bar src/
+	my-replace-recursive -r 'foo\d+' bar .
+EOF
+			exit 0
+			;;
+		--)
+			shift
+			break
+			;;
+		-*)
+			echo "Unknown option: $1" >&2
+			exit 1
+			;;
+		*)
+			break
+			;;
+	esac
+done
+
+# ---- positional args ----
+old_string="${1:-}"
+new_string="${2:-}"
+target_dir="${3:-.}"
+
+if [[ -z "$old_string" || -z "$new_string" ]]; then
+	echo "Error: missing required arguments" >&2
+	echo "Try: my-replace-recursive --help" >&2
+	exit 1
+fi
+
+if (( dry_run )); then
+	echo "DRY RUN: '$old_string' -> '$new_string' in $target_dir"
+else
+	echo "Replacing '$old_string' -> '$new_string' in $target_dir"
+fi
+echo
+
+# ---- choose literal vs regex ----
+if (( use_regex )); then
+	rg_flags=()
+	sd_flags=()
+else
+	rg_flags=(-F)
+	sd_flags=(-F)
+fi
+
+# ---- processing ----
+while IFS= read -r file; do
+	if (( dry_run )); then
+		echo "[DRY RUN] $file"
+		sd -p "${sd_flags[@]}" "$old_string" "$new_string" -- "$file"
+		echo
+	else
+		echo "Processing: $file"
+		sd "${sd_flags[@]}" "$old_string" "$new_string" -- "$file"
+	fi
+done < <(
+	rg --files-with-matches \
+		--hidden \
+		--text \
+		--glob '!.git/*' \
+		"${rg_flags[@]}" \
+		"$old_string" "$target_dir"
+)

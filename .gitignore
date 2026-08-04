@@ -1,0 +1,29 @@
+*.log
+
+# desktop
+desktop/.config/hypr/hyprland.conf
+desktop/.config/hypr/local_config.lua
+desktop/.config/sway/config.local
+desktop/.config/waybar/scripts/info-vpn.sh
+
+# fish
+fish/.config/fish/fish_variables*
+fish/.config/fish/fisher
+fish/.config/fish/config.fish.local
+
+# ya pkg managed plugins (recreated by `ya pkg install`)
+yazi/.config/yazi/plugins/full-border.yazi/
+yazi/.config/yazi/plugins/smart-enter.yazi/
+yazi/.config/yazi/plugins/toggle-pane.yazi/
+yazi/.config/yazi/plugins/no-status.yazi/
+yazi/.config/yazi/plugins/ouch.yazi/
+yazi/.config/yazi/plugins/piper.yazi/
+yazi/.config/yazi/plugins/types.yazi/
+yazi/.config/yazi/plugins/git.yazi/
+# ya pkg managed flavors
+yazi/.config/yazi/flavors/
+
+# AI
+CLAUDE.md
+.serena/
+.claude/

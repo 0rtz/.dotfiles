@@ -1,0 +1,256 @@
+# https://i3wm.org/docs/userguide.html
+# https://github.com/swaywm/sway/wiki
+
+#############
+### Input ###
+#############
+
+# Keyboard languages
+input "type:keyboard" {
+    xkb_layout us,ru
+    xkb_options "caps:none,grp:shift_caps_toggle"
+}
+
+# Do not select window under cursor automatically
+focus_follows_mouse no
+
+# Hide cursor after 3 seconds of inactivity
+seat seat0 hide_cursor 3000
+
+# Leader key (used in mappings)
+# alt key
+set $mod Mod1
+# win key
+# set $mod Mod4
+
+##################
+### Appearance ###
+##################
+
+# Cursor theme
+# $XCURSOR_THEME set in ~/.config/uwsm/env
+seat seat0 xcursor_theme phinger-cursors-light 32
+
+# Windows borders
+default_border pixel 2
+default_floating_border pixel 3
+hide_edge_borders --i3 smart
+gaps inner 0
+smart_gaps on
+
+# Windows tabs sizes in tabbed layout
+font pango:Noto Sans Bold 1
+titlebar_padding 1 1
+title_align center
+titlebar_border_thickness 1
+
+# Catppuccin Mocha theme
+# https://github.com/catppuccin/i3
+set $rosewater #f5e0dc
+set $flamingo  #f2cdcd
+set $pink      #f5c2e7
+set $mauve     #cba6f7
+set $red       #f38ba8
+set $maroon    #eba0ac
+set $peach     #fab387
+set $yellow    #f9e2af
+set $green     #a6e3a1
+set $teal      #94e2d5
+set $sky       #89dceb
+set $sapphire  #74c7ec
+set $blue      #89b4fa
+set $lavender  #b4befe
+set $text      #cdd6f4
+set $subtext1  #bac2de
+set $subtext0  #a6adc8
+set $overlay2  #9399b2
+set $overlay1  #7f849c
+set $overlay0  #6c7086
+set $surface2  #585b70
+set $surface1  #45475a
+set $surface0  #313244
+set $base      #1e1e2e
+set $mantle    #181825
+set $crust     #11111b
+
+# Windows colors
+client.focused          $maroon $maroon $text    $lavender $maroon
+client.unfocused        $base   $base   $overlay0 $lavender $base
+client.focused_inactive $base   $base   $overlay0 $lavender $base
+
+###############
+### Windows ###
+###############
+
+# Initial windows layout
+workspace_layout tabbed
+
+# Focus when client requests window activation (urgent window)
+focus_on_window_activation focus
+
+# File manager:
+for_window [app_id="org.gnome.Nautilus"] floating enable
+for_window [app_id="org.gnome.Nautilus"] border pixel 3
+for_window [app_id="org.gnome.Nautilus"] resize set width 960px height 540px
+for_window [app_id="org.gnome.Nautilus"] move to scratchpad
+
+# Password manager:
+for_window [app_id="Bitwarden"] floating enable
+for_window [app_id="Bitwarden"] border pixel 2
+for_window [app_id="Bitwarden"] move to scratchpad
+
+# Task tracker:
+for_window [class="superProductivity"] move to scratchpad
+
+# Gthumb image viewer:
+for_window [app_id="org.gnome.gThumb"] border pixel 3
+
+# Keys for directions (focus, movement, resize windows)
+set $up k
+set $down j
+set $left h
+set $right l
+
+# Move focus between windows
+bindsym $mod+$left focus left
+bindsym $mod+$down focus down
+bindsym $mod+$up focus up
+bindsym $mod+$right focus right
+
+# Move focused windows
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
+
+# Toggle window tiling/floating mode
+bindsym $mod+Shift+space floating toggle
+# Change focus between tiling/floating windows
+bindsym $mod+space focus mode_toggle
+# Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# Split windows in vertical orientation
+bindsym $mod+v split v
+# Change windows layout (tabbed, toggle split)
+bindsym $mod+e layout toggle tabbed split
+
+# Enter fullscreen mode for the focused window
+bindsym $mod+f fullscreen toggle
+
+# Kill focused window
+bindsym $mod+Shift+x kill
+
+##################
+### Workspaces ###
+##################
+
+# Define names for default workspaces
+set $ws1 1
+set $ws2 2
+set $ws3 3
+set $ws4 4
+set $ws5 5
+set $ws6 6
+set $ws7 7
+set $ws8 8
+set $ws9 9
+set $ws10 10
+
+# Switch workspaces
+bindsym $mod+q workspace number $ws1
+bindsym $mod+w workspace number $ws2
+bindsym $mod+d workspace number $ws3
+bindsym $mod+1 workspace number $ws4
+bindsym $mod+2 workspace number $ws5
+bindsym $mod+3 workspace number $ws6
+bindsym $mod+4 workspace number $ws7
+bindsym $mod+5 workspace number $ws8
+bindsym $mod+6 workspace number $ws9
+bindsym $mod+7 workspace number $ws10
+bindsym $mod+a workspace back_and_forth
+bindsym $mod+Shift+a [urgent=latest] focus
+
+# Move active window to a workspace
+bindsym $mod+Shift+q move container to workspace number $ws1
+bindsym $mod+Shift+w move container to workspace number $ws2
+bindsym $mod+Shift+d move container to workspace number $ws3
+bindsym $mod+Shift+1 move container to workspace number $ws4
+bindsym $mod+Shift+2 move container to workspace number $ws5
+bindsym $mod+Shift+3 move container to workspace number $ws6
+bindsym $mod+Shift+4 move container to workspace number $ws7
+bindsym $mod+Shift+5 move container to workspace number $ws8
+bindsym $mod+Shift+6 move container to workspace number $ws9
+bindsym $mod+Shift+7 move container to workspace number $ws10
+
+# Move the currently focused window to the scratchpad
+bindsym $mod+Shift+period move scratchpad
+# Cycle through scratchpad windows
+bindsym $mod+period scratchpad show
+
+###################
+### Keybindings ###
+###################
+
+# Application launcher
+bindsym $mod+Return exec "rofi -no-lazy-grab -show drun -modi drun -run-command 'uwsm app -- {cmd}'"
+
+# Toggle status bar
+bindsym $mod+b exec killall -SIGUSR1 waybar
+
+# Poweroff menu
+for_window [app_id="^poweroff_menu$"] floating enable, sticky enable, resize set 10 ppt 21 ppt, border pixel 3
+bindsym $mod+Shift+Return exec alacritty --class poweroff_menu --command fish --interactive -c 'my-powermenu'
+
+# Show last notification
+bindsym $mod+n exec dunstctl history-pop
+
+# Screenshot
+bindsym $mod+s exec fish -c 'my-take-screenshot'
+bindsym $mod+Shift+s exec fish -c 'my-take-screenshot --annotate'
+
+# Screen recording
+bindsym $mod+r exec fish -c 'my-screen-record'
+
+# Pick color
+bindsym $mod+c exec grim -g "$(slurp -p)" -t ppm - | convert - -format '%[pixel:p{0,0}]' txt:- | tail -n1 | grep -oP '#[0-9a-fA-F]+' | wl-copy
+
+# Clock
+for_window [app_id="time_display"] floating enable
+for_window [app_id="time_display"] border pixel 3
+for_window [app_id="time_display"] resize set width 650px height 170px
+bindsym $mod+t exec alacritty --class "time_display" --option font.size=100.0 --command fish -c "my-time"
+bindsym --no-repeat --release $mod+t [app_id="time_display"] kill
+
+# Lock screen
+bindsym Ctrl+Alt+Shift+l exec swaylock
+
+# File manager scratchpad toggle
+bindsym $mod+Shift+f exec 'swaymsg "[app_id=org.gnome.Nautilus] scratchpad show" || nautilus --new-window'
+
+# Password manager scratchpad toggle
+bindsym $mod+Shift+p exec 'swaymsg "[app_id=Bitwarden] scratchpad show" || bitwarden-desktop'
+
+# Task tracker scratchpad toggle
+bindsym $mod+Shift+t exec 'swaymsg "[class=superProductivity] scratchpad show" || superproductivity'
+
+# Reload the configuration file
+bindsym $mod+Shift+r reload
+
+############
+### Misc ###
+############
+
+# Include machine specific config
+include ~/.config/sway/config.local
+
+# Imports several environment variables into the systemd user session (line from default config: /etc/sway/config)
+# NOTE: this line must appear before starting my-desktop.target, otherwise systemd user units will not see desktop environment variables
+# If this line not added, uwsm forces session to log out
+include /etc/sway/config.d/*
+
+# Autostart: zellij terminal on workspace 2
+exec swaymsg 'workspace number 2; exec alacritty --command fish -c "zellij attach --force-run-commands --create desktop"'
+
+# Run dependent on my-desktop.target systemd units
+exec "systemctl --user start my-desktop.target"

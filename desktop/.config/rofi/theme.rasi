@@ -1,0 +1,153 @@
+* {
+    // https://github.com/catppuccin/rofi/blob/main/themes/catppuccin-mocha.rasi
+    rosewater: #f5e0dc;
+    flamingo:  #f2cdcd;
+    pink:      #f5c2e7;
+    mauve:     #cba6f7;
+    red:       #f38ba8;
+    maroon:    #eba0ac;
+    peach:     #fab387;
+    yellow:    #f9e2af;
+    green:     #a6e3a1;
+    teal:      #94e2d5;
+    sky:       #89dceb;
+    sapphire:  #74c7ec;
+    blue:      #89b4fa;
+    lavender:  #b4befe;
+    text:      #cdd6f4;
+    subtext1:  #bac2de;
+    subtext0:  #a6adc8;
+    overlay2:  #9399b2;
+    overlay1:  #7f849c;
+    overlay0:  #6c7086;
+    surface2:  #585b70;
+    surface1:  #45475a;
+    surface0:  #313244;
+    base:      #1e1e2e;
+    mantle:    #181825;
+    crust:     #11111b;
+
+    // Transparent crust
+    bg:        #11111be6;
+
+    font:           "NotoSans Nerd Font Bold 16";
+}
+
+window {
+    transparency:                "real";
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  true;
+    width:                       100%;
+    height:                      100%;
+
+    enabled:                     true;
+    background-color:            @bg;
+    cursor:                      "default";
+}
+
+mainbox {
+    enabled:                     true;
+    spacing:                     80px;
+    padding:                     8% 15%;
+    background-color:            transparent;
+    children:                    [ "inputbar", "listview", "message" ];
+}
+
+inputbar {
+    enabled:                     true;
+    spacing:                     12px;
+    margin:                      0% 25%;
+    padding:                     14px 20px;
+    border:                      2px solid;
+    border-radius:               0;
+    border-color:                @maroon;
+    background-color:            transparent;
+    text-color:                  @text;
+    children:                    [ "textbox-prompt", "entry" ];
+}
+
+textbox-prompt {
+    content:                     "🚀";
+    expand:                      false;
+    background-color:            transparent;
+    text-color:                  @text;
+}
+
+entry {
+    enabled:                     true;
+    background-color:            transparent;
+    text-color:                  inherit;
+    cursor:                      text;
+    placeholder:                 "...";
+    placeholder-color:           @subtext0;
+}
+
+listview {
+    enabled:                     true;
+    columns:                     6;
+    lines:                       3;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    reverse:                     false;
+    fixed-height:                true;
+    fixed-columns:               true;
+
+    spacing:                     10px;
+    background-color:            transparent;
+    text-color:                  @text;
+    cursor:                      "default";
+}
+
+element {
+    enabled:                     true;
+    spacing:                     10px;
+    padding:                     40px;
+    border:                      0px;
+    border-radius:               30px;
+    background-color:            transparent;
+    text-color:                  @subtext0;
+    orientation:                 vertical;
+    cursor:                      pointer;
+}
+
+element selected.normal {
+    border:                      2px solid;
+    border-color:                @red;
+    background-color:            @surface0;
+    text-color:                  @text;
+}
+
+element-icon {
+    background-color:            transparent;
+    text-color:                  inherit;
+    size:                        85px;
+    cursor:                      inherit;
+}
+
+element-text {
+    background-color:            transparent;
+    text-color:                  inherit;
+    highlight:                   @text;
+    cursor:                      inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.5;
+}
+
+message {
+    enabled:                     true;
+    margin:                      0% 25%;
+    background-color:            transparent;
+}
+
+error-message {
+    padding:                     1px;
+    border:                      2px solid;
+    expand:                      false;
+    border-radius:               0;
+    border-color:                @red;
+    background-color:            @red;
+    text-color:                  @text;
+}

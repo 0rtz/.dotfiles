@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+# Create local tracking branches for all remote branches
+
+if ! git rev-parse --git-dir &>/dev/null; then
+	echo "ERROR: Not a git repository" >&2
+	exit 1
+fi
+
+current=$(git symbolic-ref --quiet --short HEAD || true)
+
+echo "Creating local tracking branches for remote branches..."
+
+git for-each-ref --format='%(refname:short)' refs/remotes | while read -r remote_branch; do
+	[[ "$remote_branch" == */HEAD ]] && continue
+
+	branch="${remote_branch#*/}"
+
+	# Skip if local branch already exists
+	git show-ref --verify --quiet "refs/heads/$branch" && continue
+
+	echo "  + $branch -> $remote_branch"
+	git branch --track "$branch" "$remote_branch"
+done
+
+# Restore original branch if possible
+if [[ -n "$current" ]]; then
+	git checkout "$current"
+fi

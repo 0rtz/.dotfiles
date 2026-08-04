@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+# Add a git remote and fetch it immediately
+
+if (( $# < 2 )) || [[ $1 == -h || $1 == --help ]]; then
+	echo "Usage: my-add-git-remote <remote_name> <url>"
+	exit 0
+fi
+
+git remote add "$1" "$2"
+git fetch "$1"

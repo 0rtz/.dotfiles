@@ -1,0 +1,19 @@
+{
+	"codeblock_python": {
+		"prefix": "cbpy",
+		"body": [
+			"```python",
+			"$0",
+			"```"
+		]
+	},
+
+	"codeblock_bash": {
+		"prefix": "cbb",
+		"body": [
+			"```bash",
+			"$0",
+			"```"
+		]
+	}
+}

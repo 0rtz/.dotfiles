@@ -1,0 +1,108 @@
+-- Core treesitter features (syntax highlighting, folds, indentations) are built in Neovim
+
+-- 'nvim-treesitter/nvim-treesitter' plugin only provides an ability to install/uninstall parsers
+-- TODO: https://www.reddit.com/r/neovim/comments/1sbrnir/what_happened_to_nvimtreesitter_why_did_it_get/
+MyAddPlugin("nvim-treesitter/nvim-treesitter")
+-- Show function/condition/etc. (context) under cursor
+MyAddPlugin("nvim-treesitter/nvim-treesitter-context")
+-- Highlight nested delimiters with different colors
+MyAddPlugin("hiphish/rainbow-delimiters.nvim")
+
+local map = vim.keymap.set
+
+-- nvim-treesitter/nvim-treesitter
+local treesitter = require("nvim-treesitter")
+
+-- NOTE: do not autoinstall treesitter parsers because some of them actually have worse highlighting than default regex
+
+-- Parsers list: https://github.com/nvim-treesitter/nvim-treesitter/blob/main/SUPPORTED_LANGUAGES.md
+-- Ensure these parsers are installed
+local ensure_installed = {
+  "asm",
+  "bash",
+  "c",
+  "cmake",
+  "cpp",
+  "css",
+  "diff",
+  "dockerfile",
+  "go",
+  "groovy",
+  "html",
+  "http",
+  "hyprlang",
+  "ini",
+  "java",
+  "javascript",
+  "jq",
+  "jsdoc",
+  "json",
+  "latex",
+  "lua",
+  "luadoc",
+  "markdown",
+  "markdown_inline",
+  "printf",
+  "python",
+  "regex",
+  "ruby",
+  "rust",
+  "sql",
+  "ssh_config",
+  "toml",
+  "tsx",
+  "typescript",
+  "vim",
+  "vimdoc",
+  "xml",
+  "yaml",
+  "zsh",
+}
+
+local installed = treesitter.get_installed("parsers")
+local installed_set = {}
+for _, lang in ipairs(installed) do
+  installed_set[lang] = true
+end
+
+local to_install = {}
+for _, lang in ipairs(ensure_installed) do
+  if not installed_set[lang] then
+    table.insert(to_install, lang)
+  end
+end
+if #to_install > 0 then
+  -- Asynchronously install all missing parsers from 'ensure_installed'
+  treesitter.install(to_install)
+end
+
+-- Treesitter functionality must be explicitly enabled for each buffer
+vim.api.nvim_create_autocmd("FileType", {
+  callback = function()
+    -- Only enable if parser is available for current filetype
+    if not vim.treesitter.get_parser() then
+      return
+    end
+
+    -- Syntax highlighting (provided by Neovim)
+    vim.treesitter.start()
+    -- Folds (provided by Neovim)
+    vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+    vim.wo.foldmethod = "expr"
+    -- Indentation (provided by nvim-treesitter, experimental)
+    vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+  end,
+})
+
+map("n", "<leader>ei", function()
+  local view = vim.fn.winsaveview()
+  -- '=' operator handled by "v:lua.require'nvim-treesitter'.indentexpr()"
+  vim.cmd([[normal! gg=G]])
+  vim.fn.winrestview(view)
+  vim.notify("Buffer reindented", vim.log.levels.INFO)
+end, { desc = "Reindent whole buffer" })
+
+-- nvim-treesitter/nvim-treesitter-context
+map("n", ".c", function()
+  require("treesitter-context").toggle()
+end, {desc="Toggle treesitter context"})

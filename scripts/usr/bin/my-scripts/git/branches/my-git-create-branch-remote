@@ -1,0 +1,37 @@
+#!/bin/bash
+set -euo pipefail
+# Create branch locally and push to remote, or checkout if exists
+
+if (( $# == 0 )) || [[ $1 == -h || $1 == --help ]]; then
+	echo "Usage: my-git-create-branch-remote <branch> [remote=origin]"
+	exit 0
+fi
+
+branch="$1"
+remote="${2:-origin}"
+
+if [[ -z "$branch" ]]; then
+	echo "ERROR: Specify branch name" >&2
+	exit 1
+fi
+
+echo "Create or checkout branch '$branch' on remote '$remote'?"
+read -r -n 1 -p "y/n: " reply
+echo
+if [[ "$reply" != [yY] ]]; then
+	echo "Aborting..."
+	exit 1
+fi
+
+if git ls-remote --heads "$remote" "$branch" | grep -q .; then
+	echo "Branch '$branch' exists on $remote"
+
+	git show-ref --verify --quiet "refs/remotes/$remote/$branch" \
+		|| git fetch "$remote" "$branch"
+
+	git checkout "$branch" 2>/dev/null \
+		|| git checkout -t "$remote/$branch"
+else
+	git checkout -b "$branch" || exit 1
+	git push -u "$remote" "$branch"
+fi

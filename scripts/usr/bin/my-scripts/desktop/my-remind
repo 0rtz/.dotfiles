@@ -1,0 +1,90 @@
+#!/bin/bash
+set -euo pipefail
+
+UNIT_PREFIX="my-reminder"
+
+usage() {
+    echo 'Usage:
+    my-remind add "<OnCalendar>" "<Message>"
+        <OnCalendar> = systemd timer format
+    my-remind list
+    my-remind remove <unit-name>
+
+Examples:
+    my-remind add "Mon..Fri 09:00" "Daily Standup"
+    my-remind add "2026-03-20 18:00" "Doctor Appointment"
+    my-remind remove my-reminder-Daily_Standup
+'
+    exit 0
+}
+
+validate_schedule() {
+    SCHEDULE="$1"
+
+    if ! OUTPUT=$(systemd-analyze calendar "$SCHEDULE" 2>&1); then
+        echo >&2 "Invalid schedule format."
+        echo >&2 "$OUTPUT"
+        exit 1
+    fi
+
+    echo "$OUTPUT"
+    echo
+}
+
+add_timer() {
+    SCHEDULE="$1"
+    MESSAGE="$2"
+
+    if [[ -z "$SCHEDULE" || -z "$MESSAGE" ]]; then
+        usage
+    fi
+
+    validate_schedule "$SCHEDULE"
+
+    # Generate safe unit name
+    NAME=$(echo "$MESSAGE" | tr ' ' '_' | tr -dc 'a-zA-Z0-9_-')
+    UNIT="${UNIT_PREFIX}-${NAME}"
+
+    systemd-run --user \
+        --unit="$UNIT" \
+        --on-calendar="$SCHEDULE" \
+        --description="Reminder: $MESSAGE" \
+        /usr/bin/notify-send "Reminder" "$MESSAGE"
+
+    echo "Created timer: $UNIT"
+}
+
+list_timers() {
+    systemctl --user list-timers | grep "$UNIT_PREFIX" || echo "No reminders found."
+}
+
+remove_timer() {
+    NAME="$1"
+
+    if [[ -z "$NAME" ]]; then
+        usage
+    fi
+
+    TIMER="${NAME}.timer"
+
+    echo "Stopping $TIMER ..."
+    systemctl --user stop "$TIMER" 2>/dev/null || true
+    systemctl --user reset-failed "$TIMER" 2>/dev/null || true
+
+    echo "Removed: $TIMER"
+}
+
+case "${1:-}" in
+    add)
+        add_timer "${2:-}" "${3:-}"
+        ;;
+    list)
+        list_timers
+        ;;
+    remove)
+        remove_timer "${2:-}"
+        ;;
+    *)
+        usage
+        ;;
+esac

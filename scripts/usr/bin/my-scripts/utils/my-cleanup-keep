@@ -1,0 +1,115 @@
+#!/bin/bash
+set -euo pipefail
+
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+# Ensure trash-put exists if not forcing
+require_cmd trash-put
+
+show_help() {
+  cat <<EOF
+Usage:
+  $(basename "$0") [OPTIONS] DIR KEEP [TYPE] [GLOB]
+
+Description:
+  Keeps the newest KEEP items in DIR (sorted by modification time),
+  deleting the rest.
+
+Arguments:
+  DIR     Absolute or relative directory path
+  KEEP    Number of newest items to keep (integer >= 0)
+  TYPE    f = files (default), d = directories
+  GLOB    Filename pattern (default: *)
+
+Options:
+  -f      Force permanent deletion using rm -rf
+          (default: use trash-put if available)
+  -h      Show this help message and exit
+
+Examples:
+  $(basename "$0") /home/user/backups 10
+  $(basename "$0") -f /mnt/snapshots 5 d
+  $(basename "$0") /home/user/downloads 20 f "*.zip"
+EOF
+}
+
+FORCE=false
+
+# --- Parse options ---
+while getopts ":fh" opt; do
+  case "$opt" in
+    f) FORCE=true ;;
+    h)
+      show_help
+      exit 0
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG"
+      show_help
+      exit 1
+      ;;
+  esac
+done
+
+shift $((OPTIND - 1))
+
+# --- Validate required args ---
+if [[ $# -lt 2 ]]; then
+  show_help
+  exit 1
+fi
+
+DIR="$1"
+KEEP="$2"
+TYPE="${3:-f}"
+GLOB="${4:-*}"
+
+if [[ ! -d "$DIR" ]]; then
+  echo "Error: Directory does not exist: $DIR"
+  exit 1
+fi
+
+if ! [[ "$KEEP" =~ ^[0-9]+$ ]]; then
+  echo "Error: KEEP must be a non-negative integer"
+  exit 1
+fi
+
+if [[ "$TYPE" != "f" && "$TYPE" != "d" ]]; then
+  echo "Error: TYPE must be 'f' (files) or 'd' (directories)"
+  exit 1
+fi
+
+echo "Cleaning: $DIR"
+echo "Keep: $KEEP newest items"
+echo "Type: $TYPE"
+echo "Pattern: $GLOB"
+echo "Mode: $([[ "$FORCE" == true ]] && echo "rm -rf (PERMANENT)" || echo "trash-put (safe)")"
+echo
+
+# --- Collect items sorted by mtime ---
+mapfile -t items < <(
+  find "$DIR" -maxdepth 1 -mindepth 1 -type "$TYPE" -name "$GLOB" \
+    -printf '%T@ %p\n' | sort -nr | cut -d' ' -f2-
+)
+
+total=${#items[@]}
+
+if (( total <= KEEP )); then
+  echo "Nothing to delete (total=$total, keep=$KEEP)"
+  exit 0
+fi
+
+# --- Deletion ---
+for ((i=KEEP; i<total; i++)); do
+  target="${items[$i]}"
+  echo "Deleting: $target"
+
+  if [[ "$FORCE" == true ]]; then
+    rm -rf -- "$target"
+  else
+    trash-put -- "$target"
+  fi
+done
+
+echo
+echo "Done."

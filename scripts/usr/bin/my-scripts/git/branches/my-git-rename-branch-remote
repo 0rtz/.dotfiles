@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+# Rename branch locally and (if published) on remote
+
+if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+	echo "Usage: my-git-rename-branch-remote <old> <new>"
+	exit 1
+fi
+
+old="$1"
+new="$2"
+
+# Determine upstream (if any)
+upstream=$(git rev-parse --abbrev-ref --symbolic-full-name "$old@{u}" 2>/dev/null || true)
+
+# Rename locally
+git branch -m "$old" "$new" || exit 1
+
+# If branch was never pushed, stop here
+if [[ -z "$upstream" ]]; then
+	echo "Renamed local branch '$old' → '$new' (no remote branch)"
+	exit 0
+fi
+
+# Extract remote and remote branch name
+upstream_remote="${upstream%%/*}"
+upstream_branch="${upstream#*/}"
+
+# Rename remote branch
+git push "$upstream_remote" ":$upstream_branch" "$new" || exit 1
+git push -u "$upstream_remote" "$new"
+
+echo "Renamed branch locally and on '$upstream_remote'"

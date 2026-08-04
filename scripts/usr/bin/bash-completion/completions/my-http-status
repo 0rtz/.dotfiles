@@ -1,0 +1,5 @@
+# shellcheck shell=bash
+_my_http_status() {
+	COMPREPLY=()
+}
+complete -o default -F _my_http_status my-http-status

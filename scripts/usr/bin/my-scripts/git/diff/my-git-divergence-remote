@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+# Show commits difference between current branch and its upstream
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+if ! git rev-parse --git-dir &>/dev/null; then
+	echo "ERROR: Not a git repository" >&2
+	exit 1
+fi
+
+upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null) || {
+	echo "Current branch does not track any upstream."
+	exit 1
+}
+
+git fetch --quiet "${upstream%%/*}" || {
+	echo "ERROR: Cannot fetch upstream" >&2
+	exit 1
+}
+
+print_heading_blue ""
+print_heading_blue "Commits on remote not yet pulled:"
+git log --oneline "..$upstream"
+
+print_heading_blue ""
+print_heading_blue "Commits not yet pushed:"
+git log --oneline "$upstream.."

@@ -1,0 +1,34 @@
+#!/bin/bash
+# shellcheck disable=SC2154  # _my_pkg_manager set by detect_pkg_manager()
+set -euo pipefail
+# Show reverse dependencies (what depends on this package)
+# shellcheck source=../../../my-scripts-lib/init.sh disable=SC2154
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+detect_pkg_manager || exit 1
+
+package="$1"
+
+if [[ -z "$package" ]] && command -v fzf &>/dev/null; then
+	package=$(packages_list_names | fzf --prompt "Package> ") || exit
+fi
+
+[[ -z "$package" ]] && exit 1
+
+case "$_my_pkg_manager" in
+	pacman)
+		if ! command -v pactree &>/dev/null; then
+			echo "ERROR: pactree required (pacman-contrib)" >&2
+			exit 1
+		fi
+		pactree -r -c "$package"
+		;;
+	apt)
+		apt-cache rdepends "$package"
+		;;
+	dnf)
+		dnf repoquery --whatrequires "$package"
+		;;
+	zypper)
+		zypper search --requires "$package"
+		;;
+esac

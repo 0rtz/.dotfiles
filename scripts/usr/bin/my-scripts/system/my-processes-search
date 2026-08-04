@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+
+if [[ "${1:-}" == -h || "${1:-}" == --help ]]; then
+	echo "Usage: my-processes-search [pid|process_name]"
+	exit 0
+fi
+
+pid=""
+
+if [[ -z "${1:-}" ]]; then
+	pid=$(
+		ps -ww -eo user,pid,ppid,%cpu,%mem,etime,cmd --sort=-%mem |
+		fzf --header-lines=1 --reverse
+	) || exit
+
+	pid=$(echo "$pid" | awk '{print $2}')
+else
+	if [[ $1 =~ ^[0-9]+$ ]]; then
+		pid=$1
+	else
+		pid=$(pgrep "$1" | paste -sd, - || true)
+	fi
+fi
+[[ -z "$pid" ]] && exit
+
+ps -ww -p "$pid" -o user,pid,ppid,%cpu,%mem,etime,args
+
+echo ""
+echo -n "$pid" | my-yank-to-clipboard

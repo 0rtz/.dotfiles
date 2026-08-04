@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+# Set current branch to track a remote branch
+
+if (( $# == 0 )) || [[ $1 == -h || $1 == --help ]]; then
+	echo "Usage: my-git-track-remote-branch <remote/branch>"
+	exit 0
+fi
+
+if ! git show-ref --verify --quiet "refs/remotes/$1"; then
+	echo "ERROR: Remote branch '$1' does not exist" >&2
+	exit 1
+fi
+
+git branch --set-upstream-to="$1"

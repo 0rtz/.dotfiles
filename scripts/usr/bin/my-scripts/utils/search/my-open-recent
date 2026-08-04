@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+# Open recently modified files with fzf
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+: "${EDITOR:=vi}"
+
+require_cmd fzf find bat
+
+dir="${1:-.}"
+count="${2:-200}"
+
+file=$(
+	find "$dir" -type f -not -path '*/.git/*' -printf '%T@\t%p\n' 2>/dev/null |
+	sort -rn |
+	head -n "$count" |
+	cut -f2- |
+	fzf --prompt="Recent file> " \
+		--preview='
+			if command -v bat &>/dev/null; then
+				bat --color=always --line-range=:100 {}
+			else
+				head -100 {}
+			fi
+		'
+) || exit
+
+[[ -z "$file" ]] && exit
+$EDITOR "$file"

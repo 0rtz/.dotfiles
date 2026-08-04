@@ -1,0 +1,10 @@
+# shellcheck shell=bash
+_my_git_delete_branch_remote() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+
+	case "$COMP_CWORD" in
+		1) COMPREPLY=($(compgen -W "$(git branch --format='%(refname:short)' 2>/dev/null)" -- "$cur")) ;;
+		2) COMPREPLY=($(compgen -W "$(git remote 2>/dev/null)" -- "$cur")) ;;
+	esac
+}
+complete -F _my_git_delete_branch_remote my-git-delete-branch-remote

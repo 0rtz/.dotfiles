@@ -1,0 +1,23 @@
+#!/bin/bash
+set -euo pipefail
+
+if [[ -z "${1:-}" || ! "${1:-}" =~ ^[0-9]+$ ]]; then
+	echo "Usage: my-delay-wrapper <seconds> <command> [args...]"
+	exit 1
+fi
+
+delay="$1"
+shift
+
+if (( $# == 0 )); then
+	echo "ERROR: No command specified" >&2
+	exit 1
+fi
+
+(
+	sleep "$delay"
+	"$@"
+) &
+disown
+
+echo "Scheduled in $delay seconds: $*"

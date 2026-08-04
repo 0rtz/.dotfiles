@@ -1,0 +1,50 @@
+[general]
+import = ["~/.config/alacritty/themes/github_dark_high_contrast.toml"]
+
+[debug]
+log_level = "Off"
+
+[env]
+TERM = "alacritty"
+
+[terminal]
+shell = "/bin/fish"
+
+[window]
+opacity = 0.90
+
+[font]
+size = 16.0
+
+[font.bold]
+# Default font for monospace family set in ~/.config/fontconfig/conf.d/01-noto-emoji.conf
+family = "monospace"
+style = "Bold"
+
+[font.bold_italic]
+family = "monospace"
+style = "Bold Italic"
+
+[font.italic]
+family = "monospace"
+style = "Italic"
+
+[font.normal]
+family = "monospace"
+style = "Regular"
+
+[[keyboard.bindings]]
+action = "Paste"
+key = "V"
+mods = "Shift|Control"
+
+[[keyboard.bindings]]
+action = "None"
+key = "Space"
+mode = "~Search"
+mods = "Shift|Control"
+
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001B\r"

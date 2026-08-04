@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+
+# Hide the cursor
+tput civis
+
+# Trap Ctrl+C to ensure cursor is restored on exit
+trap "tput cnorm; exit" SIGINT
+
+while true; do
+    echo -ne "\r$(date +"%H:%M:%S")"
+    sleep 1
+done

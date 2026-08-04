@@ -1,0 +1,52 @@
+#!/bin/bash
+set -euo pipefail
+
+copy_cmd=()
+
+if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+	copy_cmd=(wl-copy --trim-newline)
+else
+	copy_cmd=(xclip -selection clipboard -in)
+fi
+
+# Case 1: treat arguments as files/directories
+if (( $# > 0 )); then
+	files=()
+
+	for path in "$@"; do
+		if [[ -f "$path" ]]; then
+			files+=("$path")
+		elif [[ -d "$path" ]]; then
+			while IFS= read -r -d '' f; do
+				files+=("$f")
+			done < <(find "$path" -type f -print0)
+		else
+			echo "ERROR: '$path' does not exist" >&2
+			exit 1
+		fi
+	done
+
+	if (( ${#files[@]} == 0 )); then
+		echo "ERROR: No files to copy" >&2
+		exit 1
+	fi
+
+	cat -- "${files[@]}" | "${copy_cmd[@]}"
+
+	echo "Copied contents of:"
+	printf '%s\n' "${files[@]}"
+	exit 0
+fi
+
+# Case 2: copy piped input from stdin
+if [[ -p /dev/stdin ]]; then
+	data="$(cat)"
+
+	printf '%s' "$data" | "${copy_cmd[@]}"
+
+	if (( $(grep -c . <<<"$data" || true) > 1 )); then
+		echo "Copied multiple lines to clipboard"
+	else
+		echo "Copied to clipboard: $data"
+	fi
+fi

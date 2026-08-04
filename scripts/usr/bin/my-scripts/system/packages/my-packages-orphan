@@ -1,0 +1,50 @@
+#!/bin/bash
+# shellcheck disable=SC2154  # _my_pkg_manager set by detect_pkg_manager()
+set -euo pipefail
+# Find and remove orphan packages (unused dependencies)
+# shellcheck source=../../../my-scripts-lib/init.sh disable=SC2154
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+detect_pkg_manager || exit 1
+
+orphans=""
+case "$_my_pkg_manager" in
+	pacman)
+		orphans=$(pacman -Qtdq 2>/dev/null)
+		;;
+	apt)
+		orphans=$(apt-get autoremove --dry-run 2>/dev/null |
+			grep -oP 'Remv \K[^ ]+')
+		;;
+	dnf)
+		orphans=$(dnf autoremove --assumeno 2>/dev/null |
+			awk '/^Removing:/{found=1; next} found && /^$/{found=0} found{print $1}')
+		;;
+	zypper)
+		orphans=$(zypper packages --unneeded 2>/dev/null |
+			tail -n +5 | awk '{print $5}')
+		;;
+esac
+
+if [[ -z "$orphans" ]]; then
+	echo "No orphan packages found."
+	exit 0
+fi
+
+if ! command -v fzf &>/dev/null; then
+	echo "$orphans"
+	exit 0
+fi
+
+selected=$(echo "$orphans" |
+	fzf --multi \
+		--prompt "Remove orphan> " \
+		--header 'Tab to select multiple') || exit
+
+[[ -z "$selected" ]] && exit
+
+case "$_my_pkg_manager" in
+	pacman) echo "$selected" | xargs -ro sudo pacman -Rns ;;
+	apt)    echo "$selected" | xargs -ro sudo apt remove ;;
+	dnf)    echo "$selected" | xargs -ro sudo dnf remove ;;
+	zypper) echo "$selected" | xargs -ro sudo zypper remove ;;
+esac

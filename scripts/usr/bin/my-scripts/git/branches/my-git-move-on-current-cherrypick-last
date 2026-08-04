@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+# Move branch and its last commit (cherry-pick) to current HEAD
+
+if (( $# == 0 )) || [[ $1 == -h || $1 == --help ]]; then
+	echo "Usage: my-git-move-on-current-cherrypick-last <branch>"
+	exit 0
+fi
+
+if ! git show-ref --verify --quiet "refs/heads/$1"; then
+	echo "ERROR: Branch '$1' does not exist" >&2
+	exit 1
+fi
+
+commit=$(git rev-parse "$1") || exit 1
+
+# Cherry-pick onto current HEAD
+git cherry-pick "$commit" || {
+	echo "ERROR: Cherry-pick failed" >&2
+	exit 1
+}
+
+# Move branch to new HEAD
+git branch -f "$1" HEAD || {
+	echo "ERROR: Cannot move branch" >&2
+	exit 1
+}

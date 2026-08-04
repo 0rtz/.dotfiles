@@ -1,0 +1,9 @@
+# shellcheck shell=bash
+_my_git_prune_merged_branches() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+
+	if (( COMP_CWORD == 1 )); then
+		COMPREPLY=($(compgen -W "$(git branch --format='%(refname:short)' 2>/dev/null)" -- "$cur"))
+	fi
+}
+complete -F _my_git_prune_merged_branches my-git-prune-merged-branches

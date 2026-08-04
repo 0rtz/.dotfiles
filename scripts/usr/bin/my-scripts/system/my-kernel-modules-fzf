@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euo pipefail
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+require_cmd fzf lsmod modinfo
+
+selected_module=$(
+	lsmod | fzf --header-lines=1 --prompt="Kernel module> " |
+	awk '{print $1}'
+) || exit
+
+[[ -z "$selected_module" ]] && exit
+
+echo "Module: $selected_module"
+echo
+modinfo "$selected_module"

@@ -1,0 +1,28 @@
+#!/bin/bash
+# shellcheck disable=SC2154  # _my_pkg_manager set by detect_pkg_manager()
+set -euo pipefail
+# List foreign packages (AUR, manual installs, etc.)
+# shellcheck source=../../../my-scripts-lib/init.sh disable=SC2154
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+detect_pkg_manager || exit 1
+
+foreign=""
+case "$_my_pkg_manager" in
+	pacman)
+		foreign=$(pacman -Qm)
+		;;
+	apt)
+		foreign=$(apt list --installed 2>/dev/null |
+			grep -v "^\(apt\|ubuntu\|debian\)" | cut -d/ -f1)
+		;;
+	dnf)
+		foreign=$(dnf list installed 2>/dev/null |
+			grep -v '@' | tail -n +2 | awk '{print $1}')
+		;;
+	*)
+		echo "Not supported for $_my_pkg_manager"
+		exit 1
+		;;
+esac
+
+echo "$foreign"

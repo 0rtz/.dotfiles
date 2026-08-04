@@ -1,0 +1,26 @@
+# shellcheck shell=bash
+_my_ssh_transfer() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+	local config="${HOME}/.ssh/config"
+
+	case "$COMP_CWORD" in
+		1)
+			COMPREPLY=($(compgen -W "up down" -- "$cur"))
+			return
+			;;
+		2)
+			if [[ -f "$config" ]]; then
+				local hosts
+				hosts=$(awk '/^Host / && !/\*/ {print $2}' "$config")
+				COMPREPLY=($(compgen -W "$hosts" -- "$cur"))
+			fi
+			return
+			;;
+		*)
+			# src/dest are filesystem paths
+			COMPREPLY=()
+			return
+			;;
+	esac
+}
+complete -o default -F _my_ssh_transfer my-ssh-transfer

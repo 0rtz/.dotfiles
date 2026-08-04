@@ -1,0 +1,42 @@
+#!/bin/bash
+set -euo pipefail
+# Smart editor open
+
+: "${EDITOR:=nvim}"
+
+if (( $# == 0 )); then
+	tmp="$(mktemp).md"
+	echo -e "# $tmp\n\n" >> "$tmp"
+	$EDITOR +$ "$tmp"
+	echo "$tmp" | my-yank-to-clipboard
+	exit
+fi
+
+file="$1"
+
+# Handle file:line syntax (e.g. main.go:42)
+if [[ "$file" =~ :[0-9]+$ ]]; then
+	filename="${file%:*}"
+	line="${file##*:}"
+	$EDITOR "+$line" "$filename"
+	exit
+fi
+
+# Create file and missing parent directories if needed
+if [[ ! -f "$file" ]]; then
+	dir="$(dirname "$file")"
+	if [[ ! -d "$dir" ]]; then
+		mkdir -p "$dir"
+		echo "Created $dir"
+	fi
+	touch "$file"
+else
+	# Large files (>1MB) open without config for speed
+	size=$(wc -c < "$file")
+	if (( size > 1000000 )); then
+		$EDITOR -u NONE "$file"
+		exit
+	fi
+fi
+
+$EDITOR "$file"

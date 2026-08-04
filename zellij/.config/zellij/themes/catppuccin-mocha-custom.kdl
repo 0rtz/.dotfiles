@@ -1,0 +1,154 @@
+themes {
+    catppuccin-mocha-custom {
+        // palette reference: https://github.com/catppuccin/zellij/blob/main/catppuccin.kdl
+        // bg     88 91 112
+        // fg     205 214 244
+        // red    243 139 168
+        // green  166 227 161
+        // blue   137 180 250
+        // yellow 249 226 175
+        // magenta245 194 231
+        // orange 250 179 135
+        // cyan   137 220 235
+        // black  24 24 37
+
+        // Bare text in the UI (modifier hints in status bar)
+        text_unselected {
+            base        205 214 244
+            background  24 24 37
+            emphasis_0  137 180 250
+            emphasis_1  205 214 244
+            emphasis_2  243 139 168
+            emphasis_3  249 226 175
+        }
+        text_selected {
+            base        205 214 244
+            background  88 91 112
+            emphasis_0  137 180 250
+            emphasis_1  205 214 244
+            emphasis_2  243 139 168
+            emphasis_3  249 226 175
+        }
+
+        // Tabs and mode indicators in the status bar
+        ribbon_unselected {
+            base        205 214 244
+            background  24 24 37
+            emphasis_0  137 180 250
+            emphasis_1  205 214 244
+            emphasis_2  243 139 168
+            emphasis_3  249 226 175
+        }
+        ribbon_selected {
+            base        205 214 244
+            background  243 139 168
+            emphasis_0  205 214 244
+            emphasis_1  24 24 37
+            emphasis_2  137 180 250
+            emphasis_3  205 214 244
+        }
+
+        // Table components (session manager, plugin manager)
+        table_title {
+            base        137 180 250
+            background  24 24 37
+            emphasis_0  243 139 168
+            emphasis_1  205 214 244
+            emphasis_2  137 180 250
+            emphasis_3  249 226 175
+        }
+        table_cell_unselected {
+            base        205 214 244
+            background  24 24 37
+            emphasis_0  137 180 250
+            emphasis_1  205 214 244
+            emphasis_2  243 139 168
+            emphasis_3  249 226 175
+        }
+        table_cell_selected {
+            base        205 214 244
+            background  88 91 112
+            emphasis_0  137 180 250
+            emphasis_1  205 214 244
+            emphasis_2  243 139 168
+            emphasis_3  249 226 175
+        }
+
+        // List components (nested lists in UI)
+        list_unselected {
+            base        205 214 244
+            background  24 24 37
+            emphasis_0  137 180 250
+            emphasis_1  205 214 244
+            emphasis_2  243 139 168
+            emphasis_3  249 226 175
+        }
+        list_selected {
+            base        205 214 244
+            background  88 91 112
+            emphasis_0  137 180 250
+            emphasis_1  205 214 244
+            emphasis_2  243 139 168
+            emphasis_3  249 226 175
+        }
+
+        // Pane frames (tmux: pane-border-style / pane-active-border-style)
+        frame_unselected {
+            base        24 24 37
+            background  24 24 37
+            emphasis_0  24 24 37
+            emphasis_1  24 24 37
+            emphasis_2  24 24 37
+            emphasis_3  24 24 37
+        }
+        frame_selected {
+            base        243 139 168
+            background  24 24 37
+            emphasis_0  243 139 168
+            emphasis_1  205 214 244
+            emphasis_2  137 180 250
+            emphasis_3  243 139 168
+        }
+        // Frame when in a non-normal mode (e.g. PANE, TAB)
+        frame_highlight {
+            base        137 180 250
+            background  24 24 37
+            emphasis_0  137 180 250
+            emphasis_1  205 214 244
+            emphasis_2  243 139 168
+            emphasis_3  137 180 250
+        }
+
+        // Exit code indicators for command panes
+        exit_code_success {
+            base        166 227 161
+            background  24 24 37
+            emphasis_0  166 227 161
+            emphasis_1  205 214 244
+            emphasis_2  166 227 161
+            emphasis_3  166 227 161
+        }
+        exit_code_error {
+            base        243 139 168
+            background  24 24 37
+            emphasis_0  243 139 168
+            emphasis_1  205 214 244
+            emphasis_2  243 139 168
+            emphasis_3  243 139 168
+        }
+
+        // Multiplayer cursor colors (mapped to Catppuccin tokens; some colors reused)
+        multiplayer_user_colors {
+            player_1 243 139 168  // red
+            player_2 137 180 250  // blue
+            player_3 166 227 161  // green
+            player_4 249 226 175  // yellow
+            player_5 137 220 235  // cyan
+            player_6 245 194 231  // magenta
+            player_7 250 179 135  // orange
+            player_8 205 214 244  // fg / light
+            player_9 243 139 168  // red (duplicate by design)
+            player_10 24 24 37    // black / dark
+        }
+    }
+}

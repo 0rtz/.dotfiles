@@ -1,0 +1,7 @@
+#!/bin/bash
+set -euo pipefail
+
+selected=$(man -k . | fzf --preview 'echo {} | cut -d" " -f1 | xargs man' | cut -d' ' -f1) || exit 0
+if [[ -n "$selected" ]]; then
+	man "$selected"
+fi

@@ -1,0 +1,147 @@
+/* https://github.com/catppuccin/waybar/blob/main/themes/mocha.css */
+@define-color rosewater #f5e0dc;
+@define-color flamingo #f2cdcd;
+@define-color pink #f5c2e7;
+@define-color mauve #cba6f7;
+@define-color red #f38ba8;
+@define-color maroon #eba0ac;
+@define-color peach #fab387;
+@define-color yellow #f9e2af;
+@define-color green #a6e3a1;
+@define-color teal #94e2d5;
+@define-color sky #89dceb;
+@define-color sapphire #74c7ec;
+@define-color blue #89b4fa;
+@define-color lavender #b4befe;
+@define-color text #cdd6f4;
+@define-color subtext1 #bac2de;
+@define-color subtext0 #a6adc8;
+@define-color overlay2 #9399b2;
+@define-color overlay1 #7f849c;
+@define-color overlay0 #6c7086;
+@define-color surface2 #585b70;
+@define-color surface1 #45475a;
+@define-color surface0 #313244;
+@define-color base #1e1e2e;
+@define-color mantle #181825;
+@define-color crust #11111b;
+
+/* Transparent dark from .config/alacritty/themes/github_dark_high_contrast.toml */
+@define-color bg rgba(10, 12, 16, 0.9);
+@define-color fg @text;
+
+/* default style */
+* {
+	font-family: 'NotoSans Nerd Font';
+	font-size: 17px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: bold;
+	border: none;
+	border-radius: 0;
+	min-height: 0;
+	min-width: 0;
+	margin-top: 0;
+	margin-right: 0;
+	margin-bottom: 0;
+	margin-left: 0;
+	padding-top: 0;
+	padding-right: 0;
+	padding-bottom: 0;
+	padding-left: 0;
+}
+
+/* Default color */
+window#waybar {
+	background-color: @bg;
+	color: @fg;
+}
+
+/* Global hover for all modules */
+#tray:hover,
+#network:hover,
+#custom-vpn:hover,
+#custom-scratchpad-indicator:hover,
+#custom-info_archlinux:hover,
+#custom-systemd_failed:hover,
+#custom-detect_xwayland:hover,
+#mpris:hover,
+#wireplumber:hover,
+#custom-keyboard-layout:hover,
+#clock:hover {
+	color: @blue;
+}
+
+/* Left modules */
+#tray {
+	margin-left: 0;
+}
+#network {
+	margin-left: 10px;
+	color: @green;
+	transition: all 0.3s ease;
+}
+#custom-vpn {
+	color: @green;
+	transition: all 0.3s ease;
+}
+#custom-scratchpad-indicator {
+	margin-left: 5px;
+}
+#custom-info_archlinux {
+	margin-left: 5px;
+	color: @blue;
+	transition: all 0.3s ease;
+}
+#custom-systemd_failed {
+	margin-left: 5px;
+	color: @red;
+}
+#custom-detect_xwayland {
+	margin-left: 5px;
+	color: @red;
+}
+
+/* Center modules */
+#mpris {
+    padding: 0 12px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+/* Right modules */
+#workspaces {
+	margin-right: 5px;
+}
+#workspaces button {
+	color: @fg;
+	margin-right: 20px;
+	transition: all 0.3s ease;
+	background: @bg;
+	border: none;
+	box-shadow: none;
+}
+#workspaces button.active {
+	color: @maroon;
+}
+#workspaces button.urgent {
+	color: @blue;
+}
+#workspaces button:hover {
+	color: @blue;
+	background: @bg;
+	border: none;
+	box-shadow: none;
+}
+#wireplumber {
+	margin-right: 10px;
+	transition: all 0.3s ease;
+}
+#custom-keyboard-layout {
+	margin-right: 5px;
+
+}
+#clock {
+	margin-right: 5px;
+}

@@ -1,0 +1,9 @@
+# shellcheck shell=bash
+_my_eval_var() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+
+	if (( COMP_CWORD == 1 )); then
+		COMPREPLY=($(compgen -v -- "$cur"))
+	fi
+}
+complete -F _my_eval_var my-eval-var

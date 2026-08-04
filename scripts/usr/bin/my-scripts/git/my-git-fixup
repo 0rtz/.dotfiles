@@ -1,0 +1,36 @@
+#!/bin/bash
+set -euo pipefail
+# Interactive git commit --fixup with fzf + auto-rebase
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+require_cmd fzf git
+
+if ! git rev-parse --git-dir &>/dev/null; then
+	die "Not a git repository"
+fi
+
+if git diff --cached --quiet; then
+	die "No staged changes to fixup"
+fi
+
+commit=$(
+	git log --oneline --no-merges -n 50 |
+	fzf --prompt="Fixup into> " \
+		--preview='git show --stat --color=always {1}'
+) || exit
+
+[[ -z "$commit" ]] && exit
+
+sha="${commit%% *}"
+
+git commit --fixup="$sha" || die "Commit --fixup failed"
+
+echo ""
+read -n 1 -p "Auto-rebase now? (y/n): " reply
+echo
+if [[ "$reply" == [yY] ]]; then
+	GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash "${sha}~1" || {
+		echo "Rebase failed — resolve conflicts and run: git rebase --continue" >&2
+		exit 1
+	}
+fi

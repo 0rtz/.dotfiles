@@ -1,0 +1,10 @@
+# shellcheck shell=bash
+_my_extract() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=($(compgen -W "-l --list" -- "$cur"))
+		return
+	fi
+	COMPREPLY=()
+}
+complete -o default -F _my_extract my-extract

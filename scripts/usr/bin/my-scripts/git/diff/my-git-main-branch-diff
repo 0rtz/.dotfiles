@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+# Show diff between base branch (e.g. main) and current commit
+# i.e. If I opened a PR right now, what would the diff be?
+
+if [[ "${1:-}" == -h || "${1:-}" == --help ]]; then
+	echo "Usage: my-git-main-branch-diff [base_branch]"
+	exit 0
+fi
+
+if [[ -n "${1:-}" ]]; then
+	base="$1"
+else
+	base=$(git symbolic-ref --quiet refs/remotes/origin/HEAD |
+		sed 's@^refs/remotes/origin/@@')
+fi
+
+if [[ -z "$base" ]]; then
+	echo "ERROR: Could not determine default branch" >&2
+	exit 1
+fi
+
+git rev-parse --verify --quiet "$base" || {
+	echo "ERROR: Base branch '$base' does not exist" >&2
+	exit 1
+}
+
+mb=$(git merge-base HEAD "$base") || exit 1
+
+git diff "$mb..HEAD"

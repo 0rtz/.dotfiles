@@ -1,0 +1,71 @@
+#!/bin/bash
+set -euo pipefail
+# Upload/download files to/from an SSH host (scp wrapper, ~/.ssh/config aware)
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+usage() {
+	cat <<-EOF
+		Usage: my-ssh-transfer <up|down> <host> <src> [dest] [-- scp-opts...]
+
+		Directions:
+		  up    <host> <local-src>  [remote-dest]   upload local -> host
+		  down  <host> <remote-src> [local-dest]    download host -> local
+
+		Notes:
+		  * <host> is matched against ~/.ssh/config (tab-completed).
+		  * Directories are transferred recursively.
+		  * remote-dest defaults to '~' (home), local-dest defaults to '.'.
+		  * Anything after '--' is passed straight to scp (e.g. -P 2222).
+
+		Examples:
+		  my-ssh-transfer up   webserver ./site.tar.gz /var/www/
+		  my-ssh-transfer down webserver /var/log/app.log ./logs/
+		  my-ssh-transfer up   nas ./Photos -- -P 2222
+	EOF
+}
+
+case "${1:-}" in
+	-h | --help | help | "") usage; exit 0 ;;
+esac
+
+[[ $# -lt 3 ]] && { usage >&2; exit 1; }
+
+require_cmd scp
+
+direction=$1
+host=$2
+src=$3
+shift 3
+
+# Collect optional dest and any pass-through scp options (after '--').
+dest=""
+scp_opts=()
+if [[ $# -gt 0 ]]; then
+	if [[ $1 != "--" ]]; then
+		dest=$1
+		shift
+	fi
+	if [[ ${1:-} == "--" ]]; then
+		shift
+		scp_opts=("$@")
+	fi
+fi
+
+case "$direction" in
+	up)
+		[[ -e "$src" ]] || die "Local source not found: $src"
+		remote=${dest:-'~'}
+		print_heading_blue "Uploading $src -> ${host}:${remote}"
+		scp -r "${scp_opts[@]}" -- "$src" "${host}:${remote}"
+		;;
+	down)
+		local_dest=${dest:-.}
+		print_heading_blue "Downloading ${host}:${src} -> ${local_dest}"
+		scp -r "${scp_opts[@]}" -- "${host}:${src}" "$local_dest"
+		;;
+	*)
+		die "Unknown direction '$direction' (expected 'up' or 'down')"
+		;;
+esac
+
+print_heading_blue "Done."

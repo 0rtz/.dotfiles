@@ -1,0 +1,25 @@
+// Run: waybar --config $HOME/dotfiles/desktop/.config/waybar/sway.jsonc
+{
+	"layer": "top",
+	"position": "bottom",
+
+	"include": [
+		"~/.config/waybar/modules/left.jsonc",
+		"~/.config/waybar/modules/center.jsonc",
+		"~/.config/waybar/modules/right.jsonc"
+	],
+
+	"modules-left": [
+		"tray",
+		"network",
+		"custom/vpn",
+		"custom/scratchpad-indicator",
+		"custom/info_archlinux",
+		"custom/systemd_failed",
+		"custom/detect_xwayland"
+	],
+
+	"modules-center": ["mpris"],
+
+	"modules-right": ["sway/workspaces", "wireplumber", "sway/language", "clock"]
+}

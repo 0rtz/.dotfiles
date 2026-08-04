@@ -1,0 +1,9 @@
+# shellcheck shell=bash
+_my_delay_wrapper() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+
+	if (( COMP_CWORD >= 2 )); then
+		COMPREPLY=($(compgen -c -- "$cur"))
+	fi
+}
+complete -F _my_delay_wrapper my-delay-wrapper

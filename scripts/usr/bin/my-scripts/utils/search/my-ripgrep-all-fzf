@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+# Searches inside PDFs, docs, archives, etc.
+
+if [[ -z "$1" ]]; then
+	echo "Usage: my-ripgrep-all-fzf <pattern>"
+	exit 1
+fi
+
+if ! command -v rga &>/dev/null; then
+	echo "ERROR: rga (ripgrep-all) is not installed" >&2
+	exit 1
+fi
+
+rg_prefix="rga --files-with-matches"
+
+file="$(
+	FZF_DEFAULT_COMMAND="$rg_prefix '$1'" \
+		fzf --sort --phony -q "$1" \
+			--bind "change:reload:$rg_prefix {q}" \
+			--preview="rga --pretty --context 5 {q} {}" \
+			--preview-window="70%:wrap"
+)" || exit
+
+echo "Result: $file"

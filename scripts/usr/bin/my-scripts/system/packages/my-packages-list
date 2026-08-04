@@ -1,0 +1,79 @@
+#!/bin/bash
+# Browse installed packages with fzf preview OR via arguments
+
+# shellcheck source=../../../my-scripts-lib/init.sh disable=SC2154
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+detect_pkg_manager || exit 1
+
+# Use provided arguments directly
+if [[ $# -gt 0 ]]; then
+    packages=("$@")
+else
+    require_cmd fzf
+fi
+
+case "$_my_pkg_manager" in
+    pacman)
+        if [[ $# -eq 0 ]]; then
+            pacman -Qq |
+                fzf --preview 'pacman -Qi {}' \
+                    --prompt "Installed package> " \
+                    --bind 'enter:execute(pacman -Qil {} | less)'
+        else
+            for pkg in "${packages[@]}"; do
+                echo "=== $pkg ==="
+                pacman -Qi "$pkg"
+                echo
+                pacman -Qil "$pkg" | less
+            done
+        fi
+        ;;
+
+    apt)
+        if [[ $# -eq 0 ]]; then
+            dpkg-query -W -f='${Package}\n' |
+                fzf --preview 'apt-cache show {}' \
+                    --prompt "Installed package> " \
+                    --bind 'enter:execute(dpkg -L {} | less)'
+        else
+            for pkg in "${packages[@]}"; do
+                echo "=== $pkg ==="
+                apt-cache show "$pkg"
+                echo
+                dpkg -L "$pkg" | less
+            done
+        fi
+        ;;
+
+    dnf)
+        if [[ $# -eq 0 ]]; then
+            rpm -qa --qf '%{NAME}\n' | sort |
+                fzf --preview 'dnf info {}' \
+                    --prompt "Installed package> " \
+                    --bind 'enter:execute(rpm -ql {} | less)'
+        else
+            for pkg in "${packages[@]}"; do
+                echo "=== $pkg ==="
+                dnf info "$pkg"
+                echo
+                rpm -ql "$pkg" | less
+            done
+        fi
+        ;;
+
+    zypper)
+        if [[ $# -eq 0 ]]; then
+            zypper se -i | tail -n +5 | awk '{print $3}' |
+                fzf --preview 'zypper info {}' \
+                    --prompt "Installed package> " \
+                    --bind 'enter:execute(rpm -ql {} | less)'
+        else
+            for pkg in "${packages[@]}"; do
+                echo "=== $pkg ==="
+                zypper info "$pkg"
+                echo
+                rpm -ql "$pkg" | less
+            done
+        fi
+        ;;
+esac

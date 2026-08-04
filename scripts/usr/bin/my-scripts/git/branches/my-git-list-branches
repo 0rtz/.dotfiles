@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+
+echo "Local branches:"
+git --no-pager branch --sort=committerdate --format '%(HEAD) %(color:yellow)%(refname:short)%(color:reset) -> %(color:cyan)%(upstream:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) => "%(contents:subject)" (%(color:green)%(committerdate:relative)%(color:reset))'
+echo ""
+echo "Remote branches:"
+git --no-pager branch --remotes --sort=committerdate --format '%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) => "%(contents:subject)" (%(color:green)%(committerdate:relative)%(color:reset))'

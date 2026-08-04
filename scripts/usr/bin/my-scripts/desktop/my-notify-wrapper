@@ -1,0 +1,32 @@
+#!/bin/bash
+set -uo pipefail
+
+if (( $# == 0 )); then
+	echo "Usage: my-notify-wrapper <command> [args...]"
+	exit 1
+fi
+
+start=$SECONDS
+
+"$@"
+exit_code=$?
+
+elapsed=$(( SECONDS - start ))
+
+# Format elapsed time as HH:MM:SS
+printf -v elapsed_fmt '%02d:%02d:%02d' \
+	$((elapsed/3600)) \
+	$(((elapsed%3600)/60)) \
+	$((elapsed%60))
+
+if (( exit_code == 0 )); then
+	notify-send -a "Terminal" \
+		"\"$*\"" \
+		"finished successfully\nafter $elapsed_fmt"
+else
+	notify-send -u critical -a "Terminal" \
+		"\"$*\"" \
+		"failed (exit code $exit_code)\nafter $elapsed_fmt"
+fi
+
+exit $exit_code

@@ -1,0 +1,72 @@
+#!/bin/bash
+set -euo pipefail
+# Delete branch locally and on remote
+
+if (( $# == 0 )) || [[ $1 == -h || $1 == --help ]]; then
+	echo "Usage: my-git-delete-branch-remote <branch> [remote=origin]"
+	exit 0
+fi
+
+branch="$1"
+remote="${2:-origin}"
+
+if [[ -z "$branch" ]]; then
+	echo "ERROR: Specify branch name" >&2
+	exit 1
+fi
+
+if [[ "$branch" == "$(git rev-parse --abbrev-ref HEAD)" ]]; then
+	echo "ERROR: Cannot delete the current branch" >&2
+	exit 1
+fi
+
+is_local=0
+git show-ref --verify --quiet "refs/heads/$branch" && is_local=1
+
+is_remote=0
+if git ls-remote --heads "$remote" "$branch" | grep -q .; then
+	is_remote=1
+
+	default_branch=$(git remote show "$remote" 2>/dev/null |
+		grep 'HEAD branch' | cut -d':' -f2 | tr -d '[:blank:]')
+
+	if [[ "$branch" == "$default_branch" ]]; then
+		echo "ERROR: Cannot delete '$branch' - default branch on $remote" >&2
+		echo "Change the default branch first, then try again" >&2
+		exit 1
+	fi
+fi
+
+if (( ! is_local && ! is_remote )); then
+	echo "ERROR: Branch '$branch' does not exist locally or on $remote" >&2
+	exit 1
+fi
+
+echo -n "Delete branch '$branch'"
+(( is_local )) && echo -n " locally"
+(( is_local && is_remote )) && echo -n " and"
+(( is_remote )) && echo -n " on remote '$remote'"
+echo "?"
+
+read -r -n 1 -p "y/n: " reply
+echo
+if [[ "$reply" != [yY] ]]; then
+	echo "Aborting..."
+	exit 1
+fi
+
+if (( is_local )); then
+	git branch -D "$branch" || {
+		echo "ERROR: Cannot delete '$branch' locally" >&2
+		exit 1
+	}
+fi
+
+if (( is_remote )); then
+	git push --delete "$remote" "$branch" || {
+		echo "ERROR: Cannot delete '$branch' on $remote" >&2
+		exit 1
+	}
+fi
+
+echo "Deleted."

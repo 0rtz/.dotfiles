@@ -1,0 +1,20 @@
+#!/bin/bash
+set -euo pipefail
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+require_cmd fzf ldconfig
+
+lib=$(
+	ldconfig -p |
+	grep -E '^\s+\S+' |
+	sed -n 's/^\s*\([^ ]*\).*/\1/p' |
+	sort -u |
+	fzf --prompt="Shared library> "
+) || exit
+
+echo "Processes using $lib:"
+for pid_dir in /proc/[0-9]*; do
+	pid=${pid_dir##*/}
+	grep -q "$lib" "$pid_dir/maps" 2>/dev/null &&
+		printf "%s %s\n" "$pid" "$(ps -p "$pid" -o comm=)"
+done | sort -u

@@ -1,0 +1,35 @@
+#!/bin/bash
+set -uo pipefail
+# Show local + public IP, gateway, and DNS info
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+print_heading_blue "Local interfaces:"
+if command -v ip &>/dev/null; then
+	ip -brief address show | grep -v '^\(lo\|docker\|veth\|br-\)' | while read -r iface state addrs; do
+		printf "  %-15s %-6s %s\n" "$iface" "$state" "$addrs"
+	done
+else
+	hostname -I 2>/dev/null | tr ' ' '\n' | sed 's/^/  /'
+fi
+
+echo ""
+print_heading_blue "Default gateway:"
+if command -v ip &>/dev/null; then
+	ip route show default 2>/dev/null | awk '{print "  " $3 " via " $5}'
+else
+	route -n 2>/dev/null | awk '/^0\.0\.0\.0/{print "  " $2 " via " $8}'
+fi
+
+echo ""
+print_heading_blue "DNS servers:"
+if [[ -f /etc/resolv.conf ]]; then
+	awk '/^nameserver/{print "  " $2}' /etc/resolv.conf
+fi
+
+echo ""
+print_heading_blue "Public IP:"
+if command -v curl &>/dev/null; then
+	printf "  %s\n" "$(curl -s --max-time 5 ifconfig.me 2>/dev/null || echo 'unavailable')"
+else
+	echo "  curl not available"
+fi

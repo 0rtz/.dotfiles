@@ -1,0 +1,27 @@
+#!/bin/bash
+# Select an SSH host from ~/.ssh/config with fzf and connect
+source "$HOME/usr/bin/my-scripts-lib/init.sh"
+
+require_cmd fzf ssh
+
+config="${HOME}/.ssh/config"
+
+if [[ ! -f "$config" ]]; then
+	die "No SSH config found at $config"
+fi
+
+host=$(
+	awk '/^Host / && !/\*/ {print $2}' "$config" |
+	sort -u |
+	fzf --prompt="SSH host> " \
+		--preview="awk -v h='{}' '
+			\$1 == \"Host\" && \$2 == h {found=1}
+			found && \$1 == \"Host\" && \$2 != h {exit}
+			found {print}
+		' $config"
+) || exit
+
+[[ -z "$host" ]] && exit
+
+echo "Connecting to $host..."
+ssh "$host"

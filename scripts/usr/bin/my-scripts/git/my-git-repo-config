@@ -1,0 +1,32 @@
+#!/bin/bash
+set -euo pipefail
+# Set or show git user.name and user.email for current repo
+
+if ! git rev-parse --git-dir &>/dev/null; then
+	echo "ERROR: Not a git repository" >&2
+	exit 1
+fi
+
+if (( $# == 0 )); then
+	echo "Name:  $(git config user.name)"
+	echo "Email: $(git config user.email)"
+	exit 0
+fi
+
+if [[ $1 == -h || $1 == --help ]]; then
+	echo "Usage: my-git-repo-config <name> <email>"
+	echo "       my-git-repo-config   # show current repo identity"
+	exit 0
+fi
+
+if (( $# < 2 )); then
+	echo "ERROR: Specify both name and email" >&2
+	exit 1
+fi
+
+git config user.name "$1"
+git config user.email "$2"
+
+echo "Updated repository identity:"
+echo "Name:  $(git config user.name)"
+echo "Email: $(git config user.email)"

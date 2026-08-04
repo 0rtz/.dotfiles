@@ -1,0 +1,6 @@
+# shellcheck shell=bash
+_my_open_recent() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+	COMPREPLY=($(compgen -d -- "$cur"))
+}
+complete -F _my_open_recent my-open-recent

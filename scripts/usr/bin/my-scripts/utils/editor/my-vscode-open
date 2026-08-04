@@ -1,0 +1,28 @@
+#!/bin/bash
+set -euo pipefail
+# VS Code / Windsurf wrapper with large file handling
+
+cmd=""
+if command -v windsurf &>/dev/null; then
+	cmd=windsurf
+elif command -v code &>/dev/null; then
+	cmd=code
+else
+	my-editor-open "$@"
+	exit
+fi
+
+if (( $# == 0 )); then
+	$cmd -n . &
+	disown
+	exit
+fi
+
+# Large files: open in nvim without config
+if [[ -f "$1" ]] && size=$(wc -c < "$1") && (( size > 1000000 )); then
+	nvim -u NONE "$1"
+	exit
+fi
+
+$cmd -n --goto "$1" &
+disown
