@@ -1,6 +1,6 @@
 # Awesome Linux dotfiles 🧙‍♂✨
 
-![screenshot](https://private-user-images.githubusercontent.com/46892933/632849967-0a377d58-84f6-4d0f-963a-d976e54504c6.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODYwOTY5NTQsIm5iZiI6MTc4NjA5NjY1NCwicGF0aCI6Ii80Njg5MjkzMy82MzI4NDk5NjctMGEzNzdkNTgtODRmNi00ZDBmLTk2M2EtZDk3NmU1NDUwNGM2LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNjA4MDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjYwODA3VDA5NTczNFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWY2YzUyNTUwNmIwYjA1NzFjNGQwMDg5NmQwYmY2ODFkZjJlZDg2ZjkxZjdhZGRiNWVjNTQyYTRhZWNjZDhmOTUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1pbWFnZSUyRnBuZyJ9.iVaAlFj-zmsPFPuREN_90y3VOwFeBQF1p_Ttm0FAvFY)
+![screenshot](https://github.com/user-attachments/assets/0a377d58-84f6-4d0f-963a-d976e54504c6)
 
 | **Window manager**       | **[hyprland](https://github.com/hyprwm/Hyprland), [sway](https://github.com/swaywm/sway)** |
 |:-------------------------|:-------------------------------------------------------------------------------------------|
